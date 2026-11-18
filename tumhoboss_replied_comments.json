@@ -1,0 +1,17 @@
+{
+  "account": "tumhoboss (17841476628405797)",
+  "note": "Comment IDs @tumhoboss has already replied to. The hourly auto-reply task reads this before replying (Windsor data can lag) and appends every reply it posts.",
+  "replied": [
+    {"comment_id": "17982062570919128", "username": "jaskaran_zx09", "reply_id": "18649582189014163", "replied_at": "2026-11-18T02:15:00Z"},
+    {"comment_id": "18076946666584003", "username": "kirfanmohammad", "reply_id": "17889360696688451", "replied_at": "2026-11-18T02:15:00Z"},
+    {"comment_id": "18128114116918974", "username": "ritwik613413", "reply_id": "18111491837459894", "replied_at": "2026-11-18T02:15:00Z"},
+    {"comment_id": "18051300959631943", "username": "justt_yachass_15", "reply_id": "17943880617394906", "replied_at": "2026-11-18T02:15:00Z"},
+    {"comment_id": "17996419272113725", "username": "awaaz_of_meerut_", "reply_id": "18108813899343343", "replied_at": "2026-11-18T02:15:00Z"},
+    {"comment_id": "18113922392617077", "username": "zenxxhee__", "reply_id": "18123294592997058", "replied_at": "2026-11-17T16:49:13Z"},
+    {"comment_id": "17986254773899961", "username": "urfavv.sanford28._", "reply_id": "18205055689377046", "replied_at": "2026-11-17T16:18:54Z"},
+    {"comment_id": "17984120355129093", "username": "jagjotsingh_001", "reply_id": "17920414800530713", "replied_at": "2026-11-17T16:18:56Z"},
+    {"comment_id": "17950677489068653", "username": "rmenghare_19", "reply_id": "skipped-already-answered", "replied_at": "2026-11-17T15:06:28Z"},
+    {"comment_id": "17952412575346232", "username": "rmenghare_19", "reply_id": "17994571443064350", "replied_at": "2026-11-17T15:06:28Z"},
+    {"comment_id": "18415700878090984", "username": "abhistachettri_", "reply_id": "skipped-duplicate-vote", "replied_at": "2026-11-17T16:18:51Z"}
+  ]
+}
