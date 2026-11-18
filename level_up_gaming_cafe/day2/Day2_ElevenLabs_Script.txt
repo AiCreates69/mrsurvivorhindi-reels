@@ -1,0 +1,92 @@
+LEVEL UP GAMING CAFE · DAY 2 · ElevenLabs voiceover script
+
+How to make it:
+- Model: Eleven v3 (supports the [tags]). If you use Multilingual v2, delete the [tags].
+- Voice: a young, energetic Hindi male narrator from the Voice Library. Use the same voice for every episode.
+- Make one clip per line (21 clips). Name them 001.mp3 ... 021.mp3 in this order and send them to me.
+  (One long file also works: leave a 1-second gap between lines and I'll split it.)
+- Read '...' as a short dramatic pause, then hit the next word harder.
+
+001  (cold)
+     [shocked] मैच के बीच... लाइट गई!
+     Roman: Match ke beech... light gayi!
+
+002  (cold)
+     [curious] पर पहले... देखो कल क्या हुआ!
+     Roman: Par pehle... dekho kal kya hua!
+
+003  (result)
+     [excited] तुम्हारा फ़ैसला... बी! इन्वर्टर!
+     Roman: Tumhara faisla... B! Inverter!
+
+004  (vip)
+     [proud] कमेंट करने वाले... सब वी आई पी वॉल पे!
+     Roman: Comment karne wale... sab VIP wall pe!
+
+005  (vip)
+     [playful] अपना नाम ढूँढो!
+     Roman: Apna naam dhundo!
+
+006  (fund)
+     [happy] हर लाइक से... फंड भर गया!
+     Roman: Har like se... fund bhar gaya!
+
+007  (inverter)
+     [sarcastic] इन्वर्टर आया... लेकिन सेकंड हैंड!
+     Roman: Inverter aaya... lekin second hand!
+
+008  (pcs)
+     [laughs] चलाता है सिर्फ... दो पीसी और पंखा!
+     Roman: Chalata hai sirf... 2 PC aur pankha!
+
+009  (chai)
+     [amused] कमेंट वाला आइडिया... मशीन का नाम, चाय!
+     Roman: Comment wala idea... naam Chai!
+
+010  (investor)
+     [laughs] इन्वेस्टर आया, सौ करोड़... फिर बोला, चाय उधार!
+     Roman: Investor: 100 crore... phir chai udhaar!
+
+011  (prozone)
+     [dramatic] शाम को... प्रो ज़ोन आ गया! तीन वर्सेस तीन!
+     Roman: Shaam ko... Pro Zone aa gaya! 3 vs 3!
+
+012  (blackout)
+     [tense] मैच शुरू... और लाइट गई!
+     Roman: Match shuru... aur light gayi!
+
+013  (blackout)
+     [relieved] इन्वर्टर ने... बचा लिया!
+     Roman: Inverter ne... bacha liya!
+
+014  (lucky)
+     [worried] पर लकी को... दादी का फ़ोन!
+     Roman: Par Lucky ko... dadi ka phone!
+
+015  (lucky)
+     [laughs] और लकी... घर भाग गया!
+     Roman: Aur Lucky... ghar bhaag gaya!
+
+016  (decide)
+     [curious] तीसरा प्लेयर... कौन?
+     Roman: Teesra player... kaun?
+
+017  (decide)
+      मैनेजर खुद खेलेगा,
+     Roman: Manager khud khelega,
+
+018  (decide)
+      प्रो गेमर हायर करो,
+     Roman: Pro gamer hire karo,
+
+019  (decide)
+      या कुछ और?
+     Roman: Ya kuch aur?
+
+020  (decide)
+     [excited] सबसे ज़्यादा वोट वाला जीतेगा!
+     Roman: Sabse zyada vote wala jeetega!
+
+021  (decide)
+     [proud] बॉस... तुम हो!
+     Roman: Boss... tum ho!

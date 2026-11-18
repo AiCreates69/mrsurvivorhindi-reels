@@ -37,13 +37,23 @@ PRO = [dict(skin=s, hair=h, shirt="#6a3fc4", stripes=["#6a3fc4", "#6a3fc4", "#ff
        for i, (s, h) in enumerate(((SKIN["l"], "spiky"), (SKIN["d"], "side"), (SKIN["m"], "curly")))]
 
 # ---------------- script ----------------
+VIP_WALL = ["rmenghare_19", "urfavv.sanford28._", "justt_yachass_15", "mohammed335060", "alimurtaza2015.2026",
+            "bfor._aditya", "_._umairr_._", "amanking23239", "editer_abhijeet_01", "leo_and_avacado67",
+            "rsz_rehan_sheikh", "abhistachettri_", "typelovnish", "webtoon_diaries21", "jagjotsingh_001",
+            "nayan_hu_yawr", "awaaz_of_meerut_", "x_devil_sandhu22", "__abhishek0._", "zenxxhee__",
+            "op_rishav.k", "parmar_manav_1", "bhawnakotak4", "shiva_mpatil67", "kirfanmohammad",
+            "ritwik613413", "jaskaran_zx09"]
+
+# Voice lines avoid live numbers (they're on screen), so the voiceover never needs re-recording.
 LINES = [
- ("open",     "हे! कल तुमने वोट किया... आज डे टू!",            "Hey! Kal *vote* kiya... aaj *Day 2*!"),
- ("result",   "सबसे ज़्यादा वोट... बी! इन्वर्टर!",              "Sabse zyada vote... *B*! *Inverter*!"),
- ("vip",      "बयासी फॉलोअर्स... सब वी आई पी सीट पे!",         "*82 followers*... sab VIP seat pe!"),
- ("fund",     "एक सौ सैंतालीस लाइक्स... फंड सोलह हज़ार सात सौ!", "*147 likes*... fund *16,700*!"),
- ("inverter", "इन्वर्टर आ गया... लेकिन सेकंड हैंड!",             "Inverter aaya... lekin *second hand*!"),
- ("pcs",      "चलाता है सिर्फ... दो पीसी और एक पंखा!",          "Chalata hai sirf... *2 PC* aur *pankha*!"),
+ ("cold",     "मैच के बीच... लाइट गई!",                       "Match ke beech... *light gayi*!"),
+ ("cold",     "पर पहले... देखो कल क्या हुआ!",                  "Par pehle... dekho *kal* kya hua!"),
+ ("result",   "तुम्हारा फ़ैसला... बी! इन्वर्टर!",                "Tumhara faisla... *B*! *Inverter*!"),
+ ("vip",      "कमेंट करने वाले... सब वी आई पी वॉल पे!",         "Comment karne wale... sab *VIP wall* pe!"),
+ ("vip",      "अपना नाम ढूँढो!",                              "Apna *naam* dhundo!"),
+ ("fund",     "हर लाइक से... फंड भर गया!",                     "Har like se... *fund* bhar gaya!"),
+ ("inverter", "इन्वर्टर आया... लेकिन सेकंड हैंड!",               "Inverter aaya... lekin *second hand*!"),
+ ("pcs",      "चलाता है सिर्फ... दो पीसी और पंखा!",             "Chalata hai sirf... *2 PC* aur *pankha*!"),
  ("chai",     "कमेंट वाला आइडिया... मशीन का नाम, चाय!",          "Comment wala idea... naam *Chai*!"),
  ("investor", "इन्वेस्टर आया, सौ करोड़... फिर बोला, चाय उधार!",   "Investor: *100 crore*... phir *chai udhaar*!"),
  ("prozone",  "शाम को... प्रो ज़ोन आ गया! तीन वर्सेस तीन!",      "Shaam ko... *Pro Zone* aa gaya! 3 vs 3!"),
@@ -51,7 +61,7 @@ LINES = [
  ("blackout", "इन्वर्टर ने... बचा लिया!",                       "Inverter ne... *bacha liya*!"),
  ("lucky",    "पर लकी को... दादी का फ़ोन!",                    "Par Lucky ko... *dadi* ka phone!"),
  ("lucky",    "और लकी... घर भाग गया!",                        "Aur Lucky... *ghar bhaag* gaya!"),
- ("decide",   "तीसरा प्लेयर कौन?",                            "Teesra *player* kaun?"),
+ ("decide",   "तीसरा प्लेयर... कौन?",                          "Teesra player... *kaun*?"),
  ("decide",   "मैनेजर खुद खेलेगा,",                           "*Manager* khud khelega,"),
  ("decide",   "प्रो गेमर हायर करो,",                          "*Pro gamer* hire karo,"),
  ("decide",   "या कुछ और?",                                  "Ya kuch *aur*?"),
@@ -60,9 +70,25 @@ LINES = [
 ]
 
 SHOTS = [
- ("open", "cut"), ("result", "wipe"), ("vip", "wipe"), ("fund", "whip"), ("inverter", "iris"), ("pcs", "cut"),
+ ("cold", "cut"), ("result", "whip"), ("vip", "wipe"), ("fund", "whip"), ("inverter", "iris"), ("pcs", "cut"),
  ("chai", "whip"), ("investor", "whip"), ("prozone", "wipe"), ("blackout", "iris"), ("lucky", "whip"), ("decide", "iris"),
 ]
+
+# ---------------- user voiceover (ElevenLabs etc.) ----------------
+# Put one file per line in build/user_voice/001.wav, 002.wav ... (48 kHz mono). If all are present they replace the TTS.
+import os as _os, numpy as _np, soundfile as _sf
+from srs import voice as _V
+_UV = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "build", "user_voice")
+USER_VOICE = all(_os.path.exists(_os.path.join(_UV, "%03d.wav" % (i+1))) for i in range(len(LINES)))
+if USER_VOICE:
+    _SAYS = [l[1] for l in LINES]
+    def _user_line(say, cap, voice, cache, lang="hi"):
+        i = _SAYS.index(say)
+        x, sr = _sf.read(_os.path.join(_UV, "%03d.wav" % (i+1)), dtype="float32")
+        if x.ndim > 1: x = x.mean(1)
+        return x, [(cap.replace("...", " "), 0.0, len(x)/sr)]
+    _V.line_audio = _user_line
+    _V.polish = lambda v, c: v
 
 # ---------------- sets ----------------
 def _grad(c, y0, y1, a, b):
@@ -201,7 +227,7 @@ BACKGROUNDS = {
     "blur2": lambda: art.blurred(set_cafe(), 11, .6),
     "blur_street": lambda: art.blurred(set_street(), 9, .65),
 }
-CAP_Y = {"decide": 1090, "result": 1110, "vip": 1110, "pcs": 1110, "blackout": 1110, "prozone": 1150, "chai": 1150,
+CAP_Y = {"cold": 1120, "decide": 1090, "result": 1110, "vip": 1180, "pcs": 1110, "blackout": 1110, "prozone": 1150, "chai": 1150,
          "investor": 1150, "lucky": 1150, "inverter": 1150}
 
 # ---------------- extra drawing ----------------
@@ -373,6 +399,15 @@ def shot_world(ctx, shot, lt, T, m):
             art.person(ctx, x - 40*i, 1190 - i*6, .78, sp, "point" if i == 0 and lt > 1.6 else "idle", t=lt+i)
         art.person(ctx, 120, 1230, 1.0, MANAGER, "shrug" if lt > lt_(shot, 0, .5) else "idle", t=lt, mouth=m)
         ctx.restore()
+    elif sid == "cold":
+        cut = lt_(shot, 0, .6)
+        ctx.save(); cam(ctx, 1.08 + .08*ease(lt/L), W/2, 640); paint_bg(ctx, "cafe" if lt < cut else "cafe_off"); ctx.restore()
+        if lt > cut:
+            darken(ctx, 1)
+            if lt > lt_(shot, 1, .1):
+                k = ease((lt-lt_(shot, 1, .1))/.5)
+                src(ctx, "#ffffff", .08*k); ctx.set_line_width(2)
+                for y in range(0, H, 6): ctx.move_to(0, y); ctx.line_to(W, y); ctx.stroke()
     elif sid == "blackout":
         cut = lt_(shot, 0, .62); back = lt_(shot, 1, .72)
         dark = lt > cut and lt < back
@@ -405,8 +440,9 @@ def shot_world(ctx, shot, lt, T, m):
 def cues(shot):
     s = shot["id"]; c = {}
     if s == "open":     c = dict(day=(lt_(shot, 0, .62), "hit"), y=(.2, "pop"))
+    if s == "cold":     c = dict(score=(.05, "pop"), cut=(lt_(shot, 0, .6), "boom"), rw=(lt_(shot, 1, .1), "whoosh"))
     if s == "result":   c = dict(title=(.1, "hit"), a=(.35, "pop"), b=(.5, "pop"), c=(.65, "pop"), win=(lt_(shot, 0, .62), "hit"), inv=(lt_(shot, 0, .8), "pop"))
-    if s == "vip":      c = dict(tag=(.15, "pop"), board=(.3, "pop"), done=(lt_(shot, 0, .45), "ding"), names=(lt_(shot, 0, .55), "pop"))
+    if s == "vip":      c = dict(tag=(.1, "pop"), board=(.25, "pop"), wall=(lt_(shot, 0, .5), "ding"), find=(lt_(shot, 1, .1), "hit"))
     if s == "fund":     c = dict(likes=(.2, "pop"), board=(lt_(shot, 0, .1), "pop"), done=(lt_(shot, 0, .85), "ding"))
     if s == "inverter": c = dict(drop=(.62, "boom"), tag=(.7, "pop"), sh=(lt_(shot, 0, .6), "hit"), beep=(lt_(shot, 0, .85), "beep"))
     if s == "pcs":      c = dict(tag=(.2, "pop"), two=(lt_(shot, 0, .5), "pop"), fan=(lt_(shot, 0, .8), "pop"), beep=(lt_(shot, 0, .95), "beep"))
@@ -431,8 +467,19 @@ def shot_ui(ctx, shot, lt, T):
     if s == "open":
         art.tag(ctx, "YESTERDAY: DECISION #1", W/2, 110, "#7a2fb0", size=24, sc=P("y"))
         art.title(ctx, "DAY 2", W/2, 210, 120, sc=P("day", .35))
+    elif s == "cold":
+        sc = P("score")
+        if sc > .01:
+            ctx.save(); ctx.translate(W/2, 150); ctx.scale(sc, sc)
+            rrect(ctx, -270, -50, 540, 100, 12); fill_stroke(ctx, "#1e2a46", "#ffffff", 4)
+            art.text(ctx, (("LEVEL UP  0 - 0  PRO ZONE", "#ffffff"),), "lucky", 34, 0, 2)
+            ctx.restore()
+        if lt > c["cut"][0]: art.sticker(ctx, "LIGHT GAYI!", W/2, 470, 100, "#ffffff", sc=P("cut"), rot=-.06)
+        if lt > c["rw"][0]:
+            art.tag(ctx, "<<  12 GHANTE PEHLE", W/2, 640, "#c7262f", size=36, sc=P("rw"))
     elif s == "result":
-        art.title(ctx, "RESULT!", W/2, 130, 100, sc=P("title", .35))
+        art.tag(ctx, "DAY 2", W/2, 50, "#7a2fb0", size=26, sc=P("title"))
+        art.title(ctx, "RESULT!", W/2, 140, 100, sc=P("title", .35))
         tot = max(1, sum(VOTES.values())); mx = max(VOTES.values())
         for k, (key, L_, t_, col) in enumerate((("a", "A", "BUY NEW PCS", "#2e9b5a"), ("b", "B", "GET AN INVERTER", "#c7262f"),
                                                  ("c", "C", "SOMETHING ELSE", "#1e2a46"))):
@@ -450,18 +497,25 @@ def shot_ui(ctx, shot, lt, T):
         art.sticker(ctx, "WINNER!", 555, 418, 64, "#ffd21f", sc=P("win"), rot=.12)
         art.tag(ctx, "MOST VOTED OPTION WINS", W/2, 680, "#ffd21f", "#1b1208", 24, sc=P("inv"), border="#1b1208")
     elif s == "vip":
-        art.tag(ctx, "VIP GAMING SEATS", W/2, 120, "#7a2fb0", size=30, sc=P("tag"))
-        art.board(ctx, W/2, 255, "FOLLOWERS", "{:,}".format(_count(lt, c["board"][0]+.1, 1.4, 0, FOLLOWERS)), 320, sc=P("board"))
-        if lt > c["done"][0]:
-            for k in range(6):
-                ph = (lt-c["done"][0])*.8 - k*.15
-                if 0 < ph < 1: art.heart(ctx, 120+k*100 + math.sin(k*2+ph*6)*20, 1000-ph*500, .9+.4*ph)
-        pos = [(170, 470), (520, 450), (360, 560), (150, 640), (560, 630)]
-        for i, (nm, (x, y)) in enumerate(zip(VIP_NAMES, pos)):
-            sc = pop_scale(lt, c["names"][0] + i*.16)
-            art.tag(ctx, "@" + nm, x, y + math.sin(lt*2+i)*6, "#ffffff", "#1b1208", 18, sc=sc, border="#7a2fb0")
-        art.tag(ctx, "+ %d MORE VIPs" % (FOLLOWERS - len(VIP_NAMES)), W/2, 730, "#ffd21f", "#1b1208", 24,
-                sc=pop_scale(lt, c["names"][0] + len(VIP_NAMES)*.16 + .1), border="#1b1208")
+        art.tag(ctx, "VIP WALL", 180, 110, "#7a2fb0", size=30, sc=P("tag"))
+        art.board(ctx, 500, 120, "FOLLOWERS", "{:,}".format(_count(lt, c["board"][0]+.1, 1.2, 0, FOLLOWERS)), 260, sc=P("board"), vsize=46)
+        sc = P("wall", .4)
+        if sc > .01:
+            ctx.save(); ctx.translate(W/2, 640); ctx.scale(sc, sc)
+            rrect(ctx, -330, -420, 660, 760, 18); fill_stroke(ctx, "#120c22", "#ffd21f", 5)
+            rrect(ctx, -330, -420, 660, 760, 18); ctx.clip()
+            sc_y = 40*(lt-c["wall"][0])
+            hi = int(lt*3) % len(VIP_WALL)
+            for i, nm in enumerate(VIP_WALL):
+                col, row = i % 2, i // 2
+                y = -380 + row*56 - sc_y + 20
+                if y < -440 or y > 360: continue
+                x = -165 + col*330
+                on = i == hi
+                art.text(ctx, (("@" + nm, "#ffd21f" if on else "#ffffff"),), "popx", 22 if not on else 24, x, y, alpha=1.0 if on else .85)
+                if on: art.star(ctx, x-150, y, 10)
+            ctx.restore()
+        art.sticker(ctx, "APNA NAAM DHUNDO!", W/2, 1040, 64, "#ffd21f", sc=P("find"), rot=-.06)
     elif s == "fund":
         art.tag(ctx, "%d LIKES × ₹100" % LIKES, 470, 380, "#c7262f", size=26, sc=P("likes"))
         v = _count(lt, c["board"][0]+.15, 1.5, FUND_START, FUND)
