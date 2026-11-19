@@ -1,27 +1,34 @@
 """EPISODE: Level Up Gaming Cafe — Day 2   (@tumhoboss)
-B (Inverter) won Decision #1. Numbers below come from Instagram; update them and re-render.
+B (Inverter) won Decision #1. Voiced by the user's ElevenLabs take (Raqib), split per line into build/user_voice/NNN.wav.
 Render:  python -m srs.engine path/to/episode.py [--sheet | --frames 3.0,20.5]
 """
-import math
+import math, os as _os
+import numpy as _np, soundfile as _sf
 import cairo
 from srs import art
+from srs import voice as _V
 from srs.art import W, H, src, rrect, fill_stroke, ease, eout, bout, pop_scale, SKIN, INK
 from srs.engine import lt_, cam, paint_bg
 
 TITLE = "Level Up Gaming Cafe — Day 2"
 OUTPUT = "Level_Up_Gaming_Cafe_Day2.mp4"
 VOICE = "hm_omega"
-END_HOLD = 1.8
+END_HOLD = 1.9
 
-# ---------------- real numbers (update after the final count) ----------------
-FOLLOWERS = 82
-LIKES = 147
+# ---------------- real numbers (final count, voting closed 18 Nov 8 PM) ----------------
+FOLLOWERS = 161
+LIKES = 213
 FUND_START = 2000
-FUND = FUND_START + LIKES*100            # 16,700
-VOTES = {"A": 4, "B": 10, "C": 4}
-VIP_NAMES = ["rmenghare_19", "urfavv.sanford28._", "justt_yachass_15", "mohammed335060", "alimurtaza2015.2026"]
+FUND = FUND_START + LIKES*100            # 23,300
+VOTES = {"A": 8, "B": 14, "C": 4}
+_FL = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "followers.txt")
+FOLLOWER_LIST = [l.strip().lstrip("@") for l in open(_FL, encoding="utf-8") if l.strip()] if _os.path.exists(_FL) else []
+VIP_NAMES = ["rmenghare_19", "urfavv.sanford28._", "mohammed335060", "alimurtaza2015.2026", "justt_yachass_15"]
 IDEA_BY = "typelovnish"
 INVESTOR_BY = "rsz_rehan_sheikh"
+BILL = [("INVERTER + BATTERY", 9500), ("3rd PC REPAIR", 4000), ("RGB LIGHTS", 1800),
+        ("COFFEE MACHINE 'CHAI'", 3500), ("TOURNAMENT ENTRY", 2000)]
+LEFT = FUND - sum(v for _, v in BILL)    # 2,500
 
 # ---------------- cast (matches Day 1) ----------------
 MANAGER = dict(skin=SKIN["m"], hair="side", hair_col="#1d1714", shirt="#f3efe3", jacket="#e2862b", pants="#2f4f7a",
@@ -36,57 +43,97 @@ PRO = [dict(skin=s, hair=h, shirt="#6a3fc4", stripes=["#6a3fc4", "#6a3fc4", "#ff
             band="#ffd21f", shoes="#f2f2ee", seed=6+i, brow_tilt=-4, smile=-.2)
        for i, (s, h) in enumerate(((SKIN["l"], "spiky"), (SKIN["d"], "side"), (SKIN["m"], "curly")))]
 
-# ---------------- script ----------------
-VIP_WALL = ["rmenghare_19", "urfavv.sanford28._", "justt_yachass_15", "mohammed335060", "alimurtaza2015.2026",
-            "bfor._aditya", "_._umairr_._", "amanking23239", "editer_abhijeet_01", "leo_and_avacado67",
-            "rsz_rehan_sheikh", "abhistachettri_", "typelovnish", "webtoon_diaries21", "jagjotsingh_001",
-            "nayan_hu_yawr", "awaaz_of_meerut_", "x_devil_sandhu22", "__abhishek0._", "zenxxhee__",
-            "op_rishav.k", "parmar_manav_1", "bhawnakotak4", "shiva_mpatil67", "kirfanmohammad",
-            "ritwik613413", "jaskaran_zx09"]
-
-# Voice lines avoid live numbers (they're on screen), so the voiceover never needs re-recording.
+# ---------------- script: must match the ElevenLabs take line for line ----------------
 LINES = [
- ("cold",     "मैच के बीच... लाइट गई!",                       "Match ke beech... *light gayi*!"),
- ("cold",     "पर पहले... देखो कल क्या हुआ!",                  "Par pehle... dekho *kal* kya hua!"),
- ("result",   "तुम्हारा फ़ैसला... बी! इन्वर्टर!",                "Tumhara faisla... *B*! *Inverter*!"),
- ("vip",      "कमेंट करने वाले... सब वी आई पी वॉल पे!",         "Comment karne wale... sab *VIP wall* pe!"),
- ("vip",      "अपना नाम ढूँढो!",                              "Apna *naam* dhundo!"),
- ("fund",     "हर लाइक से... फंड भर गया!",                     "Har like se... *fund* bhar gaya!"),
- ("inverter", "इन्वर्टर आया... लेकिन सेकंड हैंड!",               "Inverter aaya... lekin *second hand*!"),
- ("pcs",      "चलाता है सिर्फ... दो पीसी और पंखा!",             "Chalata hai sirf... *2 PC* aur *pankha*!"),
- ("chai",     "कमेंट वाला आइडिया... मशीन का नाम, चाय!",          "Comment wala idea... naam *Chai*!"),
- ("investor", "इन्वेस्टर आया, सौ करोड़... फिर बोला, चाय उधार!",   "Investor: *100 crore*... phir *chai udhaar*!"),
- ("prozone",  "शाम को... प्रो ज़ोन आ गया! तीन वर्सेस तीन!",      "Shaam ko... *Pro Zone* aa gaya! 3 vs 3!"),
- ("blackout", "मैच शुरू... और लाइट गई!",                      "Match shuru... aur *light gayi*!"),
- ("blackout", "इन्वर्टर ने... बचा लिया!",                       "Inverter ne... *bacha liya*!"),
- ("lucky",    "पर लकी को... दादी का फ़ोन!",                    "Par Lucky ko... *dadi* ka phone!"),
- ("lucky",    "और लकी... घर भाग गया!",                        "Aur Lucky... *ghar bhaag* gaya!"),
- ("decide",   "तीसरा प्लेयर... कौन?",                          "Teesra player... *kaun*?"),
- ("decide",   "मैनेजर खुद खेलेगा,",                           "*Manager* khud khelega,"),
- ("decide",   "प्रो गेमर हायर करो,",                          "*Pro gamer* hire karo,"),
- ("decide",   "या कुछ और?",                                  "Ya kuch *aur*?"),
- ("decide",   "सबसे ज़्यादा वोट वाला जीतेगा!",                  "Sabse zyada *vote* wala jeetega!"),
- ("decide",   "बॉस... तुम हो!",                              "Boss... *tum* ho!"),
+ ("result",  "बॉस! रिज़ल्ट आ गया!",                         "Boss! *Result* aa gaya!"),
+ ("result",  "तुमने चुना... बी! इन्वर्टर!",                     "Tumne chuna... *B*! *Inverter*!"),
+ ("result",  "चौदह वोट बी को... आठ वोट ए को!",               "*14* vote B ko... 8 vote A ko!"),
+ ("vip",     "और कैफ़े की फ़ैमिली? अब एक सौ इकसठ फ़ॉलोअर्स!",       "Aur cafe ki family? Ab *161 followers*!"),
+ ("vip",     "सबकी वी आई पी सीट पक्की... अपना नाम ढूँढो!",          "Sabki *VIP seat* pakki... apna *naam* dhundo!"),
+ ("fund",    "तुमने दिए... दो सौ तेरह लाइक्स!",                   "Tumne diye... *213 likes*!"),
+ ("fund",    "हर लाइक सौ रुपये... मतलब इक्कीस हज़ार तीन सौ!",       "Har like ₹100... matlab *₹21,300*!"),
+ ("fund",    "दो हज़ार पहले से थे... तो टोटल... तेईस हज़ार तीन सौ!",   "₹2,000 pehle se the... to total... *₹23,300*!"),
+ ("fund",    "अब देखो हिसाब...",                             "Ab dekho *hisaab*..."),
+ ("bill",    "इन्वर्टर और बैटरी... नौ हज़ार पाँच सौ!",            "Inverter aur battery... *₹9,500*!"),
+ ("bill",    "तीसरा पीसी ठीक कराया... चार हज़ार! अब पीसी चलते हैं... तीन!",
+             "Teesra PC theek karaya... *₹4,000*! Ab PC chalte hain... *teen*!"),
+ ("bill",    "आरजीबी लाइट्स... अठारह सौ!",                    "RGB lights... *₹1,800*!"),
+ ("bill",    "कॉफ़ी मशीन... साढ़े तीन हज़ार... और नाम रखा... चाय!",
+             "Coffee machine... *₹3,500*... aur naam rakha... *Chai*!"),
+ ("bill",    "टूर्नामेंट एंट्री... दो हज़ार!",                     "Tournament entry... *₹2,000*!"),
+ ("bill",    "और बचे? सिर्फ़ ढाई हज़ार!",                       "Aur bache? Sirf *₹2,500*!"),
+ ("inverter","पर इन्वर्टर आया... जुगाड़ इलेक्ट्रॉनिक्स से!",          "Par inverter aaya... *Jugaad Electronics* se!"),
+ ("pcs",     "लाइट गई तो चलाएगा... सिर्फ़ दो पीसी और एक पंखा!",   "Light gayi to chalayega... sirf *2 PC* aur ek *pankha*!"),
+ ("pcs",     "और हर दो मिनट... बीप! बीप!",                    "Aur har 2 minute... *beep! beep!*"),
+ ("investor","फिर आए इन्वेस्टर... सौ करोड़ का ऑफ़र...",           "Phir aaye investor... *₹100 crore* ka offer..."),
+ ("investor","और बोले... एक चाय उधार मिलेगी?",                "Aur bole... ek *chai udhaar* milegi?"),
+ ("prozone", "तभी... प्रो ज़ोन वाले आ गए। थ्री वर्सेस थ्री!",       "Tabhi... *Pro Zone* wale aa gaye. *3 vs 3*!"),
+ ("team",    "हमारी टीम?",                                   "Hamari *team*?"),
+ ("team",    "लकी! इस बार सामने दादी नहीं है!",                 "*Lucky*! Is baar saamne *dadi* nahi hai!"),
+ ("team",    "चिंटू! चप्पल साथ लेकर बैठा है!",                 "*Chintu*! *Chappal* saath lekar baitha hai!"),
+ ("team",    "और तीसरी... पिंकी दीदी! मैगी बीस मिनट में लाती हैं... पर हेडशॉट... बीस सेकंड में!",
+             "Aur teesri... *Pinky didi*! Maggi 20 minute mein laati hain... par headshot... *20 second* mein!"),
+ ("match",   "स्कोर... दो-दो! लास्ट राउंड!",                    "Score... *2-2*! *Last round*!"),
+ ("match",   "और तभी... लाइट गुल!",                          "Aur tabhi... *light gul*!"),
+ ("blackout","इन्वर्टर... बीप... बीप...",                       "Inverter... *beep*... *beep*..."),
+ ("blackout","दो पीसी चालू... पर पिंकी दीदी की स्क्रीन... काली!",   "2 PC chaalu... par *Pinky didi* ki screen... *kaali*!"),
+ ("decide",  "अब फ़ैसला तुम्हारा, बॉस!",                       "Ab *faisla* tumhara, boss!"),
+ ("decide",  "ए... पंखा बंद, पिंकी दीदी का पीसी इन्वर्टर पर... पर इन्वर्टर फट भी सकता है!",
+             "*A*... pankha band, Pinky didi ka PC inverter par... par inverter *phat* bhi sakta hai!"),
+ ("decide",  "बी... लकी अकेला कैरी करेगा... टू वर्सेस थ्री!",       "*B*... Lucky akela carry karega... *2 vs 3*!"),
+ ("decide",  "सी... बचे ढाई हज़ार से कुछ और? कमेंट में लिखो!",     "*C*... bache ₹2,500 se kuch aur? *Comment* mein likho!"),
+ ("decide",  "जिस ऑप्शन पर सबसे ज़्यादा कमेंट्स... वही जीतेगा!",   "Jis option par sabse zyada *comments*... wahi *jeetega*!"),
+ ("decide",  "बॉस... तुम हो!",                               "Boss... *tum* ho!"),
 ]
 
 SHOTS = [
- ("cold", "cut"), ("result", "whip"), ("vip", "wipe"), ("fund", "whip"), ("inverter", "iris"), ("pcs", "cut"),
- ("chai", "whip"), ("investor", "whip"), ("prozone", "wipe"), ("blackout", "iris"), ("lucky", "whip"), ("decide", "iris"),
+ ("result", "cut"), ("vip", "whip"), ("fund", "wipe"), ("bill", "whip"), ("inverter", "iris"), ("pcs", "cut"),
+ ("investor", "whip"), ("prozone", "wipe"), ("team", "whip"), ("match", "cut"), ("blackout", "cut"), ("decide", "iris"),
 ]
 
-# ---------------- user voiceover (ElevenLabs etc.) ----------------
-# Put one file per line in build/user_voice/001.wav, 002.wav ... (48 kHz mono). If all are present they replace the TTS.
-import os as _os, numpy as _np, soundfile as _sf
-from srs import voice as _V
+# ---------------- the user's ElevenLabs voiceover ----------------
 _UV = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "build", "user_voice")
 USER_VOICE = all(_os.path.exists(_os.path.join(_UV, "%03d.wav" % (i+1))) for i in range(len(LINES)))
+
+def _trim(x, sr, thr=.015, pad=.06):
+    fr = int(.01*sr); n = len(x)//fr
+    rms = _np.sqrt((x[:n*fr].reshape(n, fr)**2).mean(1))
+    on = _np.where(rms > thr)[0]
+    if not len(on): return x
+    return x[max(0, on[0]*fr-int(pad*sr)): min(len(x), (on[-1]+1)*fr+int(pad*sr))]
+
+def _gaps(x, sr, need, thr=.012):
+    """the `need` longest pauses inside the clip -> list of (start, end) seconds, in time order"""
+    fr = int(.01*sr); n = len(x)//fr
+    q = _np.sqrt((x[:n*fr].reshape(n, fr)**2).mean(1)) < thr
+    runs = []; s = None
+    for i, v in enumerate(q):
+        if v and s is None: s = i
+        if not v and s is not None:
+            if i-s >= 12: runs.append((s*.01, i*.01))
+            s = None
+    runs.sort(key=lambda r: r[0]-r[1])
+    return sorted(runs[:need])
+
 if USER_VOICE:
     _SAYS = [l[1] for l in LINES]
     def _user_line(say, cap, voice, cache, lang="hi"):
         i = _SAYS.index(say)
         x, sr = _sf.read(_os.path.join(_UV, "%03d.wav" % (i+1)), dtype="float32")
         if x.ndim > 1: x = x.mean(1)
-        return x, [(cap.replace("...", " "), 0.0, len(x)/sr)]
+        x = _trim(x, sr); d = len(x)/sr
+        parts = [p.strip() for p in cap.split("...") if p.strip()]
+        if len(parts) < 2: return x, [(cap.replace("...", ""), 0.0, d)]
+        g = _gaps(x, sr, len(parts)-1)
+        if len(g) != len(parts)-1:
+            w = [len(p) for p in parts]; acc = 0; g = []
+            for k in w[:-1]: acc += k; g.append((d*acc/sum(w), d*acc/sum(w)))
+        segs = []; t0 = 0.0
+        for k, p in enumerate(parts):
+            t1 = g[k][0] if k < len(g) else d
+            segs.append((p + ("..." if k < len(parts)-1 else ""), t0, max(.2, t1-t0)))
+            if k < len(g): t0 = g[k][1]
+        return x, segs
     _V.line_audio = _user_line
     _V.polish = lambda v, c: v
 
@@ -222,13 +269,14 @@ BACKGROUNDS = {
     "street": set_street,
     "cafe": set_cafe,
     "cafe_off": lambda: set_cafe(on=()),
+    "cafe3": lambda: set_cafe(on=(1, 2, 3)),
     "vip": set_vip,
     "blur": lambda: art.blurred(set_cafe(), 8, .7),
     "blur2": lambda: art.blurred(set_cafe(), 11, .6),
     "blur_street": lambda: art.blurred(set_street(), 9, .65),
 }
-CAP_Y = {"cold": 1120, "decide": 1090, "result": 1110, "vip": 1180, "pcs": 1110, "blackout": 1110, "prozone": 1150, "chai": 1150,
-         "investor": 1150, "lucky": 1150, "inverter": 1150}
+CAP_Y = {"result": 1110, "vip": 1150, "fund": 1150, "bill": 1180, "inverter": 1150, "pcs": 1110, "investor": 1150,
+         "prozone": 1150, "team": 1180, "match": 1110, "blackout": 1180, "decide": 1090}
 
 # ---------------- extra drawing ----------------
 def head_pos(x, y, s): return x, y - 525*s
@@ -349,24 +397,143 @@ def darken(ctx, k, sat=True):
         ctx.save(); ctx.set_operator(cairo.OPERATOR_HSL_SATURATION); src(ctx, "#808080", .85*k); ctx.paint(); ctx.restore()
     src(ctx, "#05030a", .78*k); ctx.paint()
 
+
+# ---------------- new props for Day 2 ----------------
+def chappal(ctx, x, y, s, rot=0.):
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ctx.scale(s, s)
+    art.ell(ctx, 0, 0, 34, 78); fill_stroke(ctx, "#2f6db0")
+    art.ell(ctx, 0, 4, 26, 66); fill_stroke(ctx, "#5a9be0", INK, 2)
+    src(ctx, INK); ctx.set_line_width(9); ctx.move_to(-22, -36); ctx.line_to(0, -6); ctx.line_to(22, -36); ctx.stroke()
+    src(ctx, "#f3efe3"); ctx.set_line_width(5); ctx.move_to(-22, -36); ctx.line_to(0, -6); ctx.line_to(22, -36); ctx.stroke()
+    ctx.restore()
+
+def cat_headset(ctx, x, y, s):
+    ctx.save(); ctx.translate(x, y); ctx.scale(s, s)
+    src(ctx, INK); ctx.set_line_width(14); ctx.arc(-120, -78, 64, math.pi*1.1, math.pi*1.9); ctx.stroke()
+    src(ctx, "#3fd8ff"); ctx.set_line_width(8); ctx.arc(-120, -78, 64, math.pi*1.1, math.pi*1.9); ctx.stroke()
+    for side in (-1, 1):
+        rrect(ctx, -120+side*62-12, -96, 24, 40, 9); fill_stroke(ctx, "#2b2b33", INK, 3)
+    ctx.restore()
+
+def rgb_strip(ctx, x, y, w, t):
+    cols = ["#ff3fa4", "#ffd21f", "#3fd8ff", "#4aff7a", "#b48cff"]
+    for k in range(9):
+        c = cols[(k + int(t*6)) % len(cols)]
+        for lw, a in ((26, .15), (12, .4)):
+            src(ctx, c, a); ctx.arc(x - w/2 + k*w/8, y, lw/2, 0, 6.3); ctx.fill()
+        ctx.arc(x - w/2 + k*w/8, y, 9, 0, 6.3); fill_stroke(ctx, c, INK, 2.5)
+    src(ctx, INK); ctx.set_line_width(3); ctx.move_to(x-w/2-20, y-18); ctx.line_to(x+w/2+20, y-18); ctx.stroke()
+
+def pc_tower(ctx, x, y, s, t, fixed=True):
+    ctx.save(); ctx.translate(x, y); ctx.scale(s, s)
+    rrect(ctx, -70, -220, 140, 220, 12); fill_stroke(ctx, "#20202a")
+    src(ctx, "#3fd8ff" if fixed else "#5a1a1a"); rrect(ctx, -50, -200, 100, 10, 4); ctx.fill()
+    for k in range(3):
+        ctx.arc(0, -150 + k*50, 18, 0, 6.3); fill_stroke(ctx, "#2b2b33", INK, 2.5)
+        if fixed:
+            ctx.save(); ctx.translate(0, -150 + k*50); ctx.rotate(t*12)
+            src(ctx, "#ff3fa4", .9); ctx.rectangle(-14, -3, 28, 6); ctx.fill(); ctx.restore()
+    ctx.restore()
+
+def ticket(ctx, x, y, s):
+    ctx.save(); ctx.translate(x, y); ctx.rotate(-.08); ctx.scale(s, s)
+    rrect(ctx, -150, -60, 300, 120, 12); fill_stroke(ctx, "#ffd21f")
+    src(ctx, INK); ctx.set_dash([8, 6]); ctx.set_line_width(3); ctx.move_to(70, -54); ctx.line_to(70, 54); ctx.stroke(); ctx.set_dash([])
+    art.text(ctx, (("ENTRY", "#c7262f"),), "lucky", 34, -40, -14); art.text(ctx, (("3 vs 3 CUP", "#2a1608"),), "lilita", 20, -40, 26)
+    art.text(ctx, (("#1", "#c7262f"),), "lucky", 34, 112, 0)
+    ctx.restore()
+
+def wallet(ctx, x, y, s, t):
+    ctx.save(); ctx.translate(x, y); ctx.scale(s, s); ctx.rotate(math.sin(t*3)*.04)
+    rrect(ctx, -120, -80, 240, 160, 18); fill_stroke(ctx, "#7a4a2a")
+    rrect(ctx, 30, -40, 100, 80, 14); fill_stroke(ctx, "#9a6a40")
+    ctx.arc(70, 0, 10, 0, 6.3); fill_stroke(ctx, "#ffd21f", INK, 2.5)
+    ctx.save(); ctx.translate(-30, -96); ctx.rotate(-.12)
+    rrect(ctx, -70, -26, 140, 52, 6); fill_stroke(ctx, "#7fe0b0")
+    art.text(ctx, (("₹500", "#1f4d36"),), "pop", 26, 0, 2); ctx.restore()
+    src(ctx, "#ffffff", .7); ctx.set_line_width(3)
+    for k in range(3):
+        a = -1.2 + k*.5; ctx.move_to(-150*math.cos(a)*-1, -150*math.sin(a)); ctx.line_to(-180*math.cos(a)*-1, -180*math.sin(a)); ctx.stroke()
+    ctx.restore()
+
+def receipt(ctx, cx, top, n_rows, rem, sc=1., hi=-1, stamp=0.):
+    """itemised bill; rows 0..n_rows-1 visible, `rem` = running balance shown at the bottom"""
+    if sc <= .01: return
+    w, rh = 600, 62
+    h = 150 + 5*rh + 120
+    ctx.save(); ctx.translate(cx, top); ctx.scale(sc, sc)
+    src(ctx, "#000", .3); rrect(ctx, -w/2+8, 8, w, h, 10); ctx.fill()
+    ctx.move_to(-w/2, 0); ctx.line_to(w/2, 0); ctx.line_to(w/2, h)
+    for k in range(16): ctx.line_to(w/2 - (k+.5)*w/16, h + (14 if k % 2 == 0 else 0))
+    ctx.line_to(-w/2, h); ctx.close_path(); fill_stroke(ctx, "#fbf6e6", INK, 4)
+    art.text(ctx, (("CAFE FUND · HISAAB", "#2a1608"),), "lucky", 34, 0, 44)
+    art.text(ctx, (("FUND IN", "#6a5a4a"),), "popx", 22, -w/2+40, 100, anchor="lm")
+    art.text(ctx, (("₹{:,}".format(FUND), "#1f6d3a"),), "pop", 26, w/2-40, 100, anchor="rm")
+    src(ctx, INK); ctx.set_dash([6, 6]); ctx.set_line_width(2); ctx.move_to(-w/2+30, 128); ctx.line_to(w/2-30, 128); ctx.stroke(); ctx.set_dash([])
+    for i, (name, amt) in enumerate(BILL):
+        if i >= n_rows: break
+        y = 160 + i*rh
+        if i == hi:
+            src(ctx, "#ffd21f", .45); rrect(ctx, -w/2+18, y-24, w-36, 48, 8); ctx.fill()
+        art.text(ctx, ((name, "#2a1608"),), "popx", 22, -w/2+40, y, anchor="lm")
+        art.text(ctx, (("- ₹{:,}".format(amt), "#c7262f"),), "pop", 24, w/2-40, y, anchor="rm")
+    yb = 150 + 5*rh + 30
+    src(ctx, INK); ctx.set_line_width(3); ctx.move_to(-w/2+30, yb-24); ctx.line_to(w/2-30, yb-24); ctx.stroke()
+    art.text(ctx, (("BACHA", "#2a1608"),), "lucky", 34, -w/2+40, yb+16, anchor="lm")
+    art.text(ctx, (("₹{:,}".format(rem), "#c7262f" if rem <= LEFT else "#1f6d3a"),), "pop", 40, w/2-40, yb+16, anchor="rm")
+    if stamp > .01:
+        ctx.save(); ctx.translate(120, yb-120); ctx.rotate(-.25); ctx.scale(stamp, stamp)
+        src(ctx, "#c7262f", .85); ctx.set_line_width(6); rrect(ctx, -130, -40, 260, 80, 10); ctx.stroke()
+        art.text(ctx, (("BAS ITNA HI!", "#c7262f"),), "lucky", 34, 0, 2, alpha=.9); ctx.restore()
+    ctx.restore()
+
+def set_match(on=(1, 2, 3)):
+    """cafe at night, tournament mode: banner + three PCs lit"""
+    img = set_cafe(on=on)
+    return img
+
+def glow_monitors(ctx, idx, t, cam_z=1.0):
+    """after the blackout: only the inverter PCs glow"""
+    for i in idx:
+        x = MON_X[i]
+        g = cairo.RadialGradient(x, 470, 10, x, 470, 220); g.add_color_stop_rgba(0, .4, .8, 1, .55); g.add_color_stop_rgba(1, .4, .8, 1, 0)
+        ctx.set_source(g); ctx.rectangle(x-240, 230, 480, 520); ctx.fill()
+        _monitor(ctx, x, 480, True, kind=0)
+
 # ---------------- shots ----------------
 def shot_world(ctx, shot, lt, T, m):
     sid = shot["id"]; L = shot["L"]
     z = 1.0 + .05*ease(lt/L)
-    if sid == "open":
-        ctx.save(); cam(ctx, z, W/2, 760); paint_bg(ctx, "street")
-        art.person(ctx, 250, 1220, 1.38, dict(MANAGER, prop=None) if lt < 1.8 else MANAGER, "wave" if lt < 1.8 else "point", t=lt, mouth=m)
-        ctx.restore()
-    elif sid == "result":
+    if sid == "result":
         paint_bg(ctx, "blur2")
-        art.person(ctx, 560, 1330, .95, MANAGER, "cheer" if lt > lt_(shot, 0, .6) else "point", t=lt, mouth=m, flip=True)
+        art.person(ctx, 560, 1330, .95, MANAGER, "cheer" if lt > lt_(shot, 1, .55) else "point", t=lt, mouth=m, flip=True)
     elif sid == "vip":
         ctx.save(); cam(ctx, z, W/2, 760); paint_bg(ctx, "vip"); ctx.restore()
     elif sid == "fund":
-        ctx.save(); cam(ctx, z, W/2, 760); paint_bg(ctx, "street")
-        art.person(ctx, 200, 1225, 1.3, MANAGER, "hold" if lt < lt_(shot, 0, .5) else "cheer", t=lt, mouth=m); ctx.restore()
+        ctx.save(); cam(ctx, z, W/2, 760); paint_bg(ctx, "blur_street")
+        art.person(ctx, 200, 1225, 1.3, MANAGER, "hold" if lt < lt_(shot, 2, .6) else "cheer", t=lt, mouth=m); ctx.restore()
+    elif sid == "bill":
+        paint_bg(ctx, "blur")
+        k = None
+        for i in range(len(shot["lines"])):
+            if lt >= lt_(shot, i, 0): k = i
+        ix, iy = W/2, 1000
+        # one prop per line, popping in under the receipt
+        if k is not None:
+            s_ = max(.02, pop_scale(lt, lt_(shot, k, .05), .35))
+            ctx.save(); ctx.translate(ix, iy); ctx.scale(s_, s_); ctx.translate(-ix, -iy)
+            if k == 0: inverter(ctx, ix+20, iy+90, .7, lt)
+            elif k == 1:
+                pc_tower(ctx, ix-150, iy+110, .8, lt)
+                for j, x in enumerate((ix+20, ix+130, ix+240)):
+                    _monitor(ctx, x, iy+10, lt > lt_(shot, 1, .55) or j < 2, kind=0)
+            elif k == 2: rgb_strip(ctx, ix, iy, 460, lt)
+            elif k == 3: chai_machine(ctx, ix-130, iy+150, .75, lt); draw_pinky(ctx, ix+170, iy+250, .45, "cheer" if lt > lt_(shot, 3, .8) else "hold", lt)
+            elif k == 4: ticket(ctx, ix, iy, 1.0)
+            elif k == 5: wallet(ctx, ix, iy+10, 1.0, lt)
+            ctx.restore()
     elif sid == "inverter":
-        ctx.save(); cam(ctx, 1.35 + .05*ease(lt/L), 360, 860); paint_bg(ctx, "cafe")
+        ctx.save(); cam(ctx, 1.35 + .05*ease(lt/L), 360, 860); paint_bg(ctx, "cafe3")
         drop = eout((lt-.2)/.45); iy = 700 + 330*drop
         if lt > .2: inverter(ctx, 290, iy, 1.0, lt, beep=lt > lt_(shot, 0, .7))
         art.person(ctx, 540, 1180, .82, CHINTU, "shrug" if lt > lt_(shot, 0, .6) else "idle", t=lt)
@@ -375,63 +542,63 @@ def shot_world(ctx, shot, lt, T, m):
             for k in range(5): ctx.move_to(220+k*40, iy-260); ctx.line_to(220+k*40, iy-330); ctx.stroke()
         ctx.restore()
     elif sid == "pcs":
-        ctx.save(); cam(ctx, 1.0 + .06*ease(lt/L), W/2, 600); paint_bg(ctx, "cafe")
+        ctx.save(); cam(ctx, 1.0 + .06*ease(lt/L), W/2, 600); paint_bg(ctx, "cafe3")
+        off = lt > lt_(shot, 0, .45)
         for i, x in enumerate(MON_X):
-            if i not in ON_PCS:
-                src(ctx, "#000", .35); ctx.rectangle(x-60, 430, 120, 80); ctx.fill()
-        inverter(ctx, 150, 990, .7, lt, beep=True)
+            if i not in (1, 3) or (i == 2 and off):
+                pass
+        if off:   # middle PC (on mains only) can't run on the inverter
+            src(ctx, "#000", .55); ctx.rectangle(MON_X[2]-60, 430, 120, 80); ctx.fill()
+            art.tag(ctx, "X", MON_X[2], 470, "#c7262f", size=26)
+        inverter(ctx, 150, 990, .7, lt, beep=lt > lt_(shot, 1, .4))
         table_fan(ctx, 560, 1000, 1.0, lt, spin=True)
-        ctx.restore()
-    elif sid == "chai":
-        ctx.save(); cam(ctx, 1.0 + .05*ease(lt/L), W/2, 900); paint_bg(ctx, "blur")
-        chai_machine(ctx, 230, 1150, 1.25, lt)
-        draw_pinky(ctx, 540, 1200, .9, "cheer" if lt > lt_(shot, 0, .75) else "hold", lt)
         ctx.restore()
     elif sid == "investor":
         ctx.save(); cam(ctx, 1.0 + .05*ease(lt/L), W/2, 900); paint_bg(ctx, "blur")
-        art.person(ctx, 360, 1230, 1.15, INVESTOR, "point" if lt < lt_(shot, 0, .6) else "palm", t=lt, mouth=m*.0)
+        art.person(ctx, 360, 1230, 1.15, INVESTOR, "point" if lt < lt_(shot, 1, 0) else "palm", t=lt, mouth=0)
+        if lt > lt_(shot, 1, .55): chai_machine(ctx, 620, 1250, .45, lt)
         ctx.restore()
     elif sid == "prozone":
         ctx.save(); cam(ctx, z, W/2, 800); paint_bg(ctx, "street")
         k = eout((lt-.3)/1.2)
         for i, sp in enumerate(PRO):
-            x = 900 + i*150 - (520+0)*k - 20*i*k
+            x = 900 + i*150 - 520*k - 20*i*k
             art.person(ctx, x - 40*i, 1190 - i*6, .78, sp, "point" if i == 0 and lt > 1.6 else "idle", t=lt+i)
         art.person(ctx, 120, 1230, 1.0, MANAGER, "shrug" if lt > lt_(shot, 0, .5) else "idle", t=lt, mouth=m)
         ctx.restore()
-    elif sid == "cold":
-        cut = lt_(shot, 0, .6)
-        ctx.save(); cam(ctx, 1.08 + .08*ease(lt/L), W/2, 640); paint_bg(ctx, "cafe" if lt < cut else "cafe_off"); ctx.restore()
-        if lt > cut:
-            darken(ctx, 1)
-            if lt > lt_(shot, 1, .1):
-                k = ease((lt-lt_(shot, 1, .1))/.5)
-                src(ctx, "#ffffff", .08*k); ctx.set_line_width(2)
-                for y in range(0, H, 6): ctx.move_to(0, y); ctx.line_to(W, y); ctx.stroke()
-    elif sid == "blackout":
-        cut = lt_(shot, 0, .62); back = lt_(shot, 1, .72)
-        dark = lt > cut and lt < back
-        ctx.save(); cam(ctx, 1.0 + .05*ease(lt/L), W/2, 640); paint_bg(ctx, "cafe" if not dark else "cafe_off"); ctx.restore()
-        if lt > cut:
-            k = 1 if dark else max(0, 1-(lt-back)/.4)*1 + .25
-            k = min(1, k)
-            if not dark:
-                fl = 1 if int((lt-back)*14) % 3 == 0 and lt-back < .5 else 0
-                darken(ctx, .25 + .5*fl, sat=False)
-            else:
-                darken(ctx, 1)
-                if lt > lt_(shot, 1, .1):
-                    on = int(lt*6) % 2 == 0
-                    src(ctx, "#ff3a3a", .35 if on else .1); art.ell(ctx, 120, 1100, 90, 90); ctx.fill()
-    elif sid == "lucky":
-        ctx.save(); cam(ctx, 1.0 + .05*ease(lt/L), W/2, 900); paint_bg(ctx, "blur")
-        run = lt_(shot, 1, .55); dx = 0 if lt < run else -900*ease((lt-run)/.6)
-        draw_lucky(ctx, 380+dx, 1210, 1.0, "hold", lt)
-        if lt > lt_(shot, 0, .5) and lt < run: phone(ctx, 380+dx+110, 1210-330, 1.3, lt)
-        if lt > run:
-            src(ctx, "#ffffff", .5); ctx.set_line_width(4)
-            for k in range(5): ctx.move_to(520+dx+k*10, 700+k*80); ctx.line_to(640+dx+k*10, 700+k*80); ctx.stroke()
+    elif sid == "team":
+        # lineup, then the camera visits each player
+        keys = [(0, 360, 1.0), (lt_(shot, 1, 0), 215, 1.45), (lt_(shot, 2, 0), 360, 1.45), (lt_(shot, 3, 0), 505, 1.45)]
+        fx, zz = 360, 1.0
+        for i, (t0, x_, z_) in enumerate(keys):
+            if lt >= t0:
+                p = ease((lt-t0)/.45)
+                fx = fx + (x_-fx)*p; zz = zz + (z_-zz)*p
+        ctx.save(); cam(ctx, zz, fx, 900); paint_bg(ctx, "vip")
+        draw_lucky(ctx, 175, 1160, .58, "cheer" if lt > lt_(shot, 1, .3) else "idle", lt, mouth=0)
+        art.person(ctx, 360, 1160, .58, CHINTU, "hold" if lt > lt_(shot, 2, .2) else "idle", t=lt)
+        if lt > lt_(shot, 2, .2): chappal(ctx, 428, 1160-345, .55, rot=.5 + math.sin(lt*6)*.15)
+        draw_pinky(ctx, 545, 1160, .58, "cheer" if lt > lt_(shot, 3, .7) else ("point" if lt > lt_(shot, 3, .1) else "idle"), lt)
+        if lt > lt_(shot, 3, .1): headphones(ctx, 545, 1160, .58)
         ctx.restore()
+    elif sid == "match":
+        dark = lt > lt_(shot, 1, .6)
+        ctx.save(); cam(ctx, 1.05 + .08*ease(lt/L), W/2, 640); paint_bg(ctx, "cafe3" if not dark else "cafe_off"); ctx.restore()
+        if dark:
+            darken(ctx, 1)
+    elif sid == "blackout":
+        ctx.save(); cam(ctx, 1.1 + .1*ease(lt/L), W/2, 640); paint_bg(ctx, "cafe_off"); ctx.restore()
+        darken(ctx, 1)
+        on = lt > lt_(shot, 0, .2)
+        if on:
+            ctx.save(); cam(ctx, 1.1 + .1*ease(lt/L), W/2, 640); glow_monitors(ctx, (1, 3), lt)
+            if lt > lt_(shot, 1, .45):
+                _monitor(ctx, MON_X[2], 480, False)
+            ctx.restore()
+        b = int(lt*6) % 2 == 0
+        src(ctx, "#ff3a3a", .35 if b else .1); art.ell(ctx, 120, 1060, 90, 90); ctx.fill()
+        inverter(ctx, 150, 1110, .55, lt, beep=True)
+        if lt > lt_(shot, 1, .5): draw_pinky(ctx, 560, 1240, .55, "shrug", lt)
     elif sid == "decide":
         paint_bg(ctx, "blur2")
         art.person(ctx, 590, 1310, .9, MANAGER, "point", t=lt, mouth=m, flip=True)
@@ -439,24 +606,27 @@ def shot_world(ctx, shot, lt, T, m):
 
 def cues(shot):
     s = shot["id"]; c = {}
-    if s == "open":     c = dict(day=(lt_(shot, 0, .62), "hit"), y=(.2, "pop"))
-    if s == "cold":     c = dict(score=(.05, "pop"), cut=(lt_(shot, 0, .6), "boom"), rw=(lt_(shot, 1, .1), "whoosh"))
-    if s == "result":   c = dict(title=(.1, "hit"), a=(.35, "pop"), b=(.5, "pop"), c=(.65, "pop"), win=(lt_(shot, 0, .62), "hit"), inv=(lt_(shot, 0, .8), "pop"))
-    if s == "vip":      c = dict(tag=(.1, "pop"), board=(.25, "pop"), wall=(lt_(shot, 0, .5), "ding"), find=(lt_(shot, 1, .1), "hit"))
-    if s == "fund":     c = dict(likes=(.2, "pop"), board=(lt_(shot, 0, .1), "pop"), done=(lt_(shot, 0, .85), "ding"))
+    if s == "result":   c = dict(title=(.1, "hit"), a=(lt_(shot, 1, 0), "pop"), b=(lt_(shot, 1, .2), "pop"), c=(lt_(shot, 1, .35), "pop"),
+                                 win=(lt_(shot, 1, .55), "hit"), cnt=(lt_(shot, 2, .1), "ding"))
+    if s == "vip":      c = dict(tag=(.1, "pop"), board=(lt_(shot, 0, .3), "pop"), list=(lt_(shot, 0, .55), "whoosh"),
+                                 find=(lt_(shot, 1, .55), "ding"))
+    if s == "fund":     c = dict(likes=(lt_(shot, 0, .2), "pop"), x100=(lt_(shot, 1, .1), "pop"), plus=(lt_(shot, 2, .1), "pop"),
+                                 total=(lt_(shot, 2, .65), "ding"), his=(lt_(shot, 3, .3), "hit"))
+    if s == "bill":     c = dict(r=(.05, "whoosh"), **{"l%d" % i: (lt_(shot, i, .55), "tick") for i in range(5)},
+                                 three=(lt_(shot, 1, .8), "ding"), left=(lt_(shot, 5, .55), "hit"))
     if s == "inverter": c = dict(drop=(.62, "boom"), tag=(.7, "pop"), sh=(lt_(shot, 0, .6), "hit"), beep=(lt_(shot, 0, .85), "beep"))
-    if s == "pcs":      c = dict(tag=(.2, "pop"), two=(lt_(shot, 0, .5), "pop"), fan=(lt_(shot, 0, .8), "pop"), beep=(lt_(shot, 0, .95), "beep"))
-    if s == "chai":     c = dict(idea=(lt_(shot, 0, .2), "pop"), name=(lt_(shot, 0, .75), "hit"))
-    if s == "investor": c = dict(tag=(.25, "pop"), cr=(lt_(shot, 0, .3), "hit"), ud=(lt_(shot, 0, .78), "hit"))
-    if s == "prozone":  c = dict(card=(lt_(shot, 0, .5), "hit"), vs=(lt_(shot, 0, .8), "pop"))
-    if s == "blackout": c = dict(score=(.2, "pop"), cut=(lt_(shot, 0, .62), "powerdown"), beep=(lt_(shot, 1, .25), "beep"),
-                                 back=(lt_(shot, 1, .72), "ding"))
-    if s == "lucky":    c = dict(tag=(.2, "pop"), call=(lt_(shot, 0, .5), "ring"), run=(lt_(shot, 1, .55), "whoosh"), team=(lt_(shot, 1, .8), "hit"))
-    if s == "decide":   c = dict(title=(lt_(shot, 0, .05), "hit"), q=(lt_(shot, 0, .2), "pop"), a=(lt_(shot, 1), "pop"), b=(lt_(shot, 2), "pop"),
+    if s == "pcs":      c = dict(tag=(.2, "pop"), two=(lt_(shot, 0, .55), "pop"), fan=(lt_(shot, 0, .85), "pop"), beep=(lt_(shot, 1, .45), "beep"))
+    if s == "investor": c = dict(tag=(.25, "pop"), cr=(lt_(shot, 0, .55), "hit"), ud=(lt_(shot, 1, .55), "hit"))
+    if s == "prozone":  c = dict(card=(lt_(shot, 0, .35), "hit"), vs=(lt_(shot, 0, .8), "pop"))
+    if s == "team":     c = dict(q=(.05, "pop"), p1=(lt_(shot, 1, .05), "hit"), p2=(lt_(shot, 2, .05), "hit"), p3=(lt_(shot, 3, .3), "hit"),
+                                 wake=(lt_(shot, 3, .35), "pop"), hs=(lt_(shot, 3, .8), "hit"))
+    if s == "match":    c = dict(score=(.1, "pop"), last=(lt_(shot, 0, .6), "riser"), cut=(lt_(shot, 1, .6), "powerdown"))
+    if s == "blackout": c = dict(beep=(lt_(shot, 0, .2), "beep"), two=(lt_(shot, 1, .1), "pop"), black=(lt_(shot, 1, .8), "boom"))
+    if s == "decide":   c = dict(title=(lt_(shot, 0, .05), "hit"), a=(lt_(shot, 1), "pop"), risk=(lt_(shot, 1, .7), "pop"), b=(lt_(shot, 2), "pop"),
                                  c=(lt_(shot, 3), "pop"), cm=(lt_(shot, 4), "pop"), boss=(lt_(shot, 5, .5), "crowd"))
     for k, (t_, sfx) in list(c.items()):
         if sfx not in (None, "pop", "hit", "ding", "whoosh", "crowd", "riser"):
-            c[k] = (t_, {"beep": "pop", "ring": "ding", "boom": "hit", "powerdown": "hit"}.get(sfx, "pop"))
+            c[k] = (t_, {"beep": "pop", "tick": "pop", "boom": "hit", "powerdown": "hit"}.get(sfx, "pop"))
     return c
 
 def _count(lt, t0, dur, a, b):
@@ -464,80 +634,93 @@ def _count(lt, t0, dur, a, b):
 
 def shot_ui(ctx, shot, lt, T):
     s = shot["id"]; c = cues(shot); P = lambda k, d=.28: pop_scale(lt, c[k][0], d)
-    if s == "open":
-        art.tag(ctx, "YESTERDAY: DECISION #1", W/2, 110, "#7a2fb0", size=24, sc=P("y"))
-        art.title(ctx, "DAY 2", W/2, 210, 120, sc=P("day", .35))
-    elif s == "cold":
-        sc = P("score")
-        if sc > .01:
-            ctx.save(); ctx.translate(W/2, 150); ctx.scale(sc, sc)
-            rrect(ctx, -270, -50, 540, 100, 12); fill_stroke(ctx, "#1e2a46", "#ffffff", 4)
-            art.text(ctx, (("LEVEL UP  0 - 0  PRO ZONE", "#ffffff"),), "lucky", 34, 0, 2)
-            ctx.restore()
-        if lt > c["cut"][0]: art.sticker(ctx, "LIGHT GAYI!", W/2, 470, 100, "#ffffff", sc=P("cut"), rot=-.06)
-        if lt > c["rw"][0]:
-            art.tag(ctx, "<<  12 GHANTE PEHLE", W/2, 640, "#c7262f", size=36, sc=P("rw"))
-    elif s == "result":
+    if s == "result":
         art.tag(ctx, "DAY 2", W/2, 50, "#7a2fb0", size=26, sc=P("title"))
         art.title(ctx, "RESULT!", W/2, 140, 100, sc=P("title", .35))
-        tot = max(1, sum(VOTES.values())); mx = max(VOTES.values())
+        mx = max(VOTES.values())
         for k, (key, L_, t_, col) in enumerate((("a", "A", "BUY NEW PCS", "#2e9b5a"), ("b", "B", "GET AN INVERTER", "#c7262f"),
                                                  ("c", "C", "SOMETHING ELSE", "#1e2a46"))):
             sc = P(key)
             if sc <= .01: continue
             y = 280 + k*120; win = L_ == "B" and lt > c["win"][0]
             art.option(ctx, W/2, y, 640, L_, t_, col, win, sc=sc)
-            f = ease((lt-c[key][0]-.2)/.9) * VOTES[L_]/mx
+            f = ease((lt-c["cnt"][0])/1.0) * VOTES[L_]/mx
             ctx.save(); ctx.translate(W/2, y); ctx.scale(sc, sc)
             rrect(ctx, -228, 50, 456, 16, 6); fill_stroke(ctx, "#2a2238", None)
             rrect(ctx, -228, 50, 456*f, 16, 6); fill_stroke(ctx, col if not win else "#ffd21f", None)
-            art.text(ctx, (("%d votes" % int(VOTES[L_]*ease((lt-c[key][0]-.2)/.9)), "#ffffff"),), "popx", 18, 280, 58, stroke=3)
+            art.text(ctx, (("%d votes" % int(VOTES[L_]*ease((lt-c["cnt"][0])/1.0)), "#ffffff"),), "popx", 18, 280, 58, stroke=3)
             ctx.restore()
         art.confetti(ctx, lt-c["win"][0], 560, 360, n=40)
         art.sticker(ctx, "WINNER!", 555, 418, 64, "#ffd21f", sc=P("win"), rot=.12)
-        art.tag(ctx, "MOST VOTED OPTION WINS", W/2, 680, "#ffd21f", "#1b1208", 24, sc=P("inv"), border="#1b1208")
     elif s == "vip":
-        art.tag(ctx, "VIP WALL", 180, 110, "#7a2fb0", size=30, sc=P("tag"))
-        art.board(ctx, 500, 120, "FOLLOWERS", "{:,}".format(_count(lt, c["board"][0]+.1, 1.2, 0, FOLLOWERS)), 260, sc=P("board"), vsize=46)
-        sc = P("wall", .4)
+        art.tag(ctx, "VIP SEATS", 170, 110, "#7a2fb0", size=30, sc=P("tag"))
+        art.board(ctx, 500, 120, "FOLLOWERS", "{:,}".format(_count(lt, c["board"][0]+.1, 1.6, 36, FOLLOWERS)), 260, sc=P("board"), vsize=46)
+        names = FOLLOWER_LIST or VIP_NAMES
+        sc = P("list", .4)
         if sc > .01:
-            ctx.save(); ctx.translate(W/2, 640); ctx.scale(sc, sc)
-            rrect(ctx, -330, -420, 660, 760, 18); fill_stroke(ctx, "#120c22", "#ffd21f", 5)
-            rrect(ctx, -330, -420, 660, 760, 18); ctx.clip()
-            sc_y = 40*(lt-c["wall"][0])
-            hi = int(lt*3) % len(VIP_WALL)
-            for i, nm in enumerate(VIP_WALL):
-                col, row = i % 2, i // 2
-                y = -380 + row*56 - sc_y + 20
-                if y < -440 or y > 360: continue
-                x = -165 + col*330
-                on = i == hi
-                art.text(ctx, (("@" + nm, "#ffd21f" if on else "#ffffff"),), "popx", 22 if not on else 24, x, y, alpha=1.0 if on else .85)
-                if on: art.star(ctx, x-150, y, 10)
+            top, hgt = 210, 780
+            ctx.save(); ctx.translate(W/2, top + hgt/2); ctx.scale(sc, sc); ctx.translate(-W/2, -(top + hgt/2))
+            rrect(ctx, 50, top, 620, hgt, 26); fill_stroke(ctx, "#120c22", "#ffd21f", 5)
+            art.text(ctx, (("VIP LIST · %d BOSS" % len(names), "#ffd21f"),), "lucky", 32, W/2, top+44)
+            ctx.save(); rrect(ctx, 56, top+78, 608, hgt-90, 20); ctx.clip()
+            row = 42; rows = (len(names)+1)//2
+            span = max(0, rows*row - (hgt-120))
+            dur = max(1.0, shot["L"] - c["list"][0] - .5)
+            off = span * min(1, max(0, (lt - c["list"][0] - .3) / dur))
+            for i, nm in enumerate(names):
+                r_, col = i // 2, i % 2
+                y = top + 108 + r_*row - off
+                if y < top+50 or y > top+hgt+30: continue
+                if r_ % 2 == 0 and col == 0:
+                    src(ctx, "#ffffff", .05); ctx.rectangle(56, y-row/2, 608, row); ctx.fill()
+                x0 = 70 + col*300
+                art.star(ctx, x0+12, y, 8)
+                nm_ = "@" + nm
+                fs = 20 if len(nm_) <= 20 else max(14, int(20*20/len(nm_)))
+                art.text(ctx, ((nm_, "#ffffff"),), "popx", fs, x0+28, y, anchor="lm")
             ctx.restore()
-        art.sticker(ctx, "APNA NAAM DHUNDO!", W/2, 1040, 64, "#ffd21f", sc=P("find"), rot=-.06)
+            g = cairo.LinearGradient(0, top+78, 0, top+150); g.add_color_stop_rgba(0, .07, .05, .13, 1); g.add_color_stop_rgba(1, .07, .05, .13, 0)
+            ctx.set_source(g); ctx.rectangle(56, top+78, 608, 72); ctx.fill()
+            g = cairo.LinearGradient(0, top+hgt-80, 0, top+hgt-12); g.add_color_stop_rgba(0, .07, .05, .13, 0); g.add_color_stop_rgba(1, .07, .05, .13, 1)
+            ctx.set_source(g); ctx.rectangle(56, top+hgt-80, 608, 70); ctx.fill()
+            ctx.restore()
+        art.sticker(ctx, "APNA NAAM DHUNDO!", W/2, 1040, 60, "#ffd21f", sc=P("find"), rot=-.05)
     elif s == "fund":
-        art.tag(ctx, "%d LIKES × ₹100" % LIKES, 470, 380, "#c7262f", size=26, sc=P("likes"))
-        v = _count(lt, c["board"][0]+.15, 1.5, FUND_START, FUND)
-        art.board(ctx, 450, 230, "CAFE FUND", "₹{:,}".format(v), 380, sc=P("board"), vsize=66)
-        if lt > c["done"][0]: art.sticker(ctx, "PAISA HI PAISA!", 450, 500, 54, "#7fe0b0", sc=P("done"), rot=-.08)
+        lk = _count(lt, c["likes"][0]+.1, 1.0, 0, LIKES)
+        art.board(ctx, 450, 200, "TUMHARE LIKES", "{:,} ❤".format(lk).replace(" ❤", ""), 380, sc=P("likes"), vsize=62)
+        if lt > c["x100"][0]:
+            art.tag(ctx, "× ₹100 HAR LIKE", 450, 330, "#c7262f", size=28, sc=P("x100"))
+            v = _count(lt, c["x100"][0]+.4, 1.0, 0, LIKES*100)
+            art.tag(ctx, "= ₹{:,}".format(v), 450, 405, "#1f4d36", "#ffd21f", size=40, sc=P("x100", .35), border="#ffd21f")
+        if lt > c["plus"][0]:
+            art.tag(ctx, "+ ₹2,000 PEHLE SE", 450, 495, "#2f6db0", size=28, sc=P("plus"))
+        if lt > c["total"][0]:
+            art.board(ctx, 450, 640, "TOTAL FUND", "₹{:,}".format(FUND), 400, sc=P("total", .35), vsize=66)
+            art.sticker(ctx, "PAISA HI PAISA!", 470, 790, 50, "#7fe0b0", sc=pop_scale(lt, c["total"][0]+.3), rot=-.08)
+        art.sticker(ctx, "AB HISAAB!", 470, 900, 56, "#ffd21f", sc=P("his"), rot=.07)
         for k in range(4):
             f = (lt - .3 - k*.3)/1.0
-            if 0 < f < 1: art.heart(ctx, 620 - 170*f, 760 - 520*f + math.sin(f*6+k)*30, 1.3)
+            if 0 < f < 1: art.heart(ctx, 640 - 120*f, 760 - 520*f + math.sin(f*6+k)*30, 1.3)
+    elif s == "bill":
+        n = sum(1 for i in range(5) if lt > c["l%d" % i][0])
+        rem = FUND - sum(v for _, v in BILL[:n])
+        hi = n-1 if n and lt < lt_(shot, min(n, 5), 0) + .01 else -1
+        receipt(ctx, W/2, 60, n, rem, sc=P("r", .35), hi=n-1, stamp=P("left", .35))
+        if lt > c["three"][0] and lt < lt_(shot, 2, 0):
+            art.sticker(ctx, "3 PCs CHALU!", W/2, 820, 50, "#4aff7a", sc=P("three"), rot=-.05)
+        if lt > lt_(shot, 3, .7) and lt < lt_(shot, 4, 0):
+            art.sticker(ctx, "NAAM: CHAI!", W/2, 820, 56, "#ffd21f", sc=pop_scale(lt, lt_(shot, 3, .7)), rot=-.05)
+            art.tag(ctx, "IDEA BY @" + IDEA_BY, W/2, 885, "#ffd21f", "#1b1208", 20, sc=pop_scale(lt, lt_(shot, 3, .75)), border="#1b1208")
     elif s == "inverter":
         art.tag(ctx, "INVERTER ARRIVED!", W/2, 120, "#2e9b5a", size=30, sc=P("tag"))
         art.sticker(ctx, "SECOND HAND!", W/2, 260, 76, "#ff8a1e", sc=P("sh"), rot=-.08)
         art.tag(ctx, "FROM: JUGAAD ELECTRONICS", W/2, 370, "#1e2a46", size=22, sc=P("sh", .35))
         if lt > c["beep"][0] and int(lt*4) % 2 == 0: art.sticker(ctx, "BEEP!", 170, 560, 54, "#ff5a4a", sc=1, rot=.15)
     elif s == "pcs":
-        art.tag(ctx, "INVERTER CAPACITY", W/2, 140, "#1e2a46", size=26, sc=P("tag"))
-        art.tag(ctx, "PCs ON: 2 / 5", 220, 240, "#c7262f", size=26, sc=P("two"))
-        art.tag(ctx, "+ 1 PANKHA", 500, 240, "#2f6db0", size=26, sc=P("fan"))
+        art.tag(ctx, "LIGHT GAYI TO...", W/2, 140, "#1e2a46", size=26, sc=P("tag"))
+        art.tag(ctx, "INVERTER: 2 PCs", 220, 240, "#c7262f", size=26, sc=P("two"))
+        art.tag(ctx, "+ 1 PANKHA", 520, 240, "#2f6db0", size=26, sc=P("fan"))
         if lt > c["beep"][0] and int(lt*4) % 2 == 0: art.sticker(ctx, "BEEP BEEP!", 200, 780, 54, "#ff5a4a", sc=1, rot=-.12)
-    elif s == "chai":
-        art.tag(ctx, "IDEA BY @" + IDEA_BY, W/2, 140, "#ffd21f", "#1b1208", 24, sc=P("idea"), border="#1b1208")
-        art.tag(ctx, "COFFEE MACHINE", W/2, 220, "#1e2a46", size=26, sc=P("idea", .35))
-        art.sticker(ctx, "NAAM: CHAI!", W/2, 350, 84, "#ffd21f", sc=P("name"), rot=-.06)
     elif s == "investor":
         art.tag(ctx, "INVESTOR: @" + INVESTOR_BY, W/2, 130, "#1e2a46", size=22, sc=P("tag"))
         sc = P("cr")
@@ -555,35 +738,46 @@ def shot_ui(ctx, shot, lt, T):
             art.text(ctx, (("LEVEL UP", "#ff3fa4"), ("  VS  ", "#ffffff"), ("PRO ZONE", "#b48cff")), "lucky", 38, 0, 12)
             ctx.restore()
         art.sticker(ctx, "3 vs 3!", 520, 640, 80, "#ffd21f", sc=P("vs"), rot=.08)
-    elif s == "blackout":
+    elif s == "team":
+        art.title(ctx, "HAMARI TEAM", W/2, 120, 80, sc=P("q", .35))
+        if c["p1"][0] < lt < lt_(shot, 2, 0):
+            art.tag(ctx, "PLAYER 1 · LUCKY", W/2, 230, "#c7262f", size=30, sc=P("p1"))
+            art.sticker(ctx, "NO DADI TODAY!", W/2, 330, 56, "#ffd21f", sc=pop_scale(lt, lt_(shot, 1, .5)), rot=-.06)
+        if c["p2"][0] < lt < lt_(shot, 3, 0):
+            art.tag(ctx, "PLAYER 2 · CHINTU", W/2, 230, "#2f6db0", size=30, sc=P("p2"))
+            art.sticker(ctx, "+ CHAPPAL", W/2, 330, 56, "#7fe0b0", sc=pop_scale(lt, lt_(shot, 2, .45)), rot=.06)
+        if lt > c["p3"][0]:
+            art.tag(ctx, "PLAYER 3 · PINKY DIDI", W/2, 230, "#e85a9a", size=30, sc=P("p3"))
+            if lt > c["wake"][0]: art.sticker(ctx, "MAGGI: 20 MIN", W/2, 320, 46, "#ff8a1e", sc=P("wake"), rot=-.06)
+            if lt > c["hs"][0]: art.sticker(ctx, "HEADSHOT: 20 SEC!", W/2, 400, 56, "#ffd21f", sc=P("hs"), rot=.05)
+    elif s == "match":
         sc = P("score")
         if sc > .01:
             ctx.save(); ctx.translate(W/2, 150); ctx.scale(sc, sc)
             rrect(ctx, -270, -50, 540, 100, 12); fill_stroke(ctx, "#1e2a46", "#ffffff", 4)
-            art.text(ctx, (("LEVEL UP  0 - 0  PRO ZONE", "#ffffff"),), "lucky", 34, 0, 2)
+            art.text(ctx, (("LEVEL UP  2 - 2  PRO ZONE", "#ffffff"),), "lucky", 34, 0, 2)
             ctx.restore()
-        if c["cut"][0] < lt < c["back"][0]:
-            art.sticker(ctx, "LIGHT GAYI!", W/2, 420, 90, "#ffffff", sc=pop_scale(lt, c["cut"][0]), rot=-.06)
-            if lt > c["beep"][0] and int(lt*6) % 2 == 0: art.sticker(ctx, "BEEP...", 200, 980, 56, "#ff5a4a", sc=1, rot=.1)
-        if lt > c["back"][0]:
-            art.sticker(ctx, "INVERTER ZINDABAD!", W/2, 420, 66, "#4aff7a", sc=P("back"), rot=-.06)
-    elif s == "lucky":
-        art.tag(ctx, "LUCKY · PRO GAMER", W/2, 120, "#c7262f", size=28, sc=P("tag"))
-        if c["call"][0] < lt < c["run"][0]: art.sticker(ctx, "DADI CALLING...", W/2, 260, 66, "#4aff7a", sc=P("call"), rot=-.06)
-        if lt > c["run"][0]: art.sticker(ctx, "BHAAG GAYA!", W/2, 300, 84, "#ff8a1e", sc=P("run"), rot=.06)
-        art.tag(ctx, "TEAM: 2 / 3 PLAYERS", W/2, 430, "#c7262f", size=28, sc=P("team"))
+        if c["last"][0] < lt < c["cut"][0]: art.sticker(ctx, "LAST ROUND!", W/2, 300, 76, "#ff8a1e", sc=P("last"), rot=-.05)
+        if lt > c["cut"][0]: art.sticker(ctx, "LIGHT GUL!", W/2, 470, 100, "#ffffff", sc=P("cut"), rot=-.06)
+    elif s == "blackout":
+        if int(lt*6) % 2 == 0: art.sticker(ctx, "BEEP...", 210, 900, 56, "#ff5a4a", sc=1, rot=.1)
+        art.tag(ctx, "INVERTER: 2 PCs ON", W/2, 140, "#2e9b5a", size=28, sc=P("two"))
+        if lt > c["black"][0]:
+            art.sticker(ctx, "PINKY DI KI SCREEN KAALI!", W/2, 300, 50, "#ff5a4a", sc=P("black"), rot=-.05)
+            art.tag(ctx, "LEVEL UP: 2 PLAYERS ONLY", W/2, 640, "#c7262f", size=26, sc=pop_scale(lt, c["black"][0]+.3))
     elif s == "decide":
         art.title(ctx, "DECISION #2", W/2, 120, 92, sc=P("title", .35))
-        art.tag(ctx, "3rd PLAYER KAUN?", W/2, 220, "#c7262f", size=28, sc=P("q"))
+        art.tag(ctx, "LAST ROUND KAISE KHELEIN?", W/2, 220, "#c7262f", size=26, sc=P("title", .4))
         cur = 0
         for k, key in enumerate(("a", "b", "c")):
             if lt > c[key][0]: cur = k
         allon = lt > c["boss"][0]
-        for k, (key, L_, t_, col) in enumerate((("a", "A", "MANAGER PLAYS", "#2e9b5a"), ("b", "B", "HIRE A PRO GAMER", "#c7262f"),
-                                                 ("c", "C", "SOMETHING ELSE?", "#1e2a46"))):
+        for k, (key, L_, t_, col) in enumerate((("a", "A", "FAN OFF, PINKY DI KA PC ON", "#2e9b5a"), ("b", "B", "LUCKY SOLO: 2 vs 3", "#c7262f"),
+                                                 ("c", "C", "BACHE 2,500 SE KUCH AUR", "#1e2a46"))):
             act = (k == cur and lt < c["cm"][0]) or (allon and int(lt*5) % 3 == k)
             art.option(ctx, W/2, 320+k*104, 640, L_, t_, col, act, sc=P(key))
+        if c["risk"][0] < lt < c["b"][0]: art.sticker(ctx, "RISK: INVERTER PHAT SAKTA HAI!", W/2, 650, 40, "#ff5a4a", sc=P("risk"), rot=-.04)
         art.tag(ctx, "COMMENT  A / B / C", 260, 660, "#c7262f", size=26, sc=P("cm"))
-        art.tag(ctx, "MOST VOTED OPTION WINS", 290, 730, "#ffd21f", "#1b1208", 24, sc=pop_scale(lt, c["cm"][0]+.25), border="#1b1208")
+        art.tag(ctx, "MOST COMMENTED OPTION WINS", 300, 730, "#ffd21f", "#1b1208", 22, sc=pop_scale(lt, c["cm"][0]+.25), border="#1b1208")
         art.sticker(ctx, "YOU'RE THE BOSS!", 330, 850, 60, "#ffd21f", sc=P("boss"), rot=-.1)
         art.confetti(ctx, lt-c["boss"][0], W/2, 600)
