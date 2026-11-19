@@ -45,47 +45,45 @@ PRO = [dict(skin=s, hair=h, shirt="#6a3fc4", stripes=["#6a3fc4", "#6a3fc4", "#ff
 
 # ---------------- script: must match the ElevenLabs take line for line ----------------
 LINES = [
- ("result",  "बॉस! रिज़ल्ट आ गया!",                         "Boss! *Result* aa gaya!"),
- ("result",  "मेजॉरिटी ने कहा... बी! इन्वर्टर!",                "*Majority* ne kaha... *B*! *Inverter*!"),
- ("result",  "पीसी वाले... इस बार पीछे रह गए!",                 "PC wale... is baar *peeche* reh gaye!"),
- ("vip",     "और कैफ़े की फ़ैमिली? अब एक सौ इकसठ फ़ॉलोअर्स!",       "Aur cafe ki family? Ab *161 followers*!"),
- ("vip",     "सबकी वी आई पी सीट पक्की... अपना नाम ढूँढो!",          "Sabki *VIP seat* pakki... apna *naam* dhundo!"),
- ("fund",    "तुमने दिए... दो सौ तेरह लाइक्स!",                   "Tumne diye... *213 likes*!"),
- ("fund",    "हर लाइक सौ रुपये... मतलब इक्कीस हज़ार तीन सौ!",       "Har like ₹100... matlab *₹21,300*!"),
- ("fund",    "दो हज़ार पहले से थे... तो टोटल... तेईस हज़ार तीन सौ!",   "₹2,000 pehle se the... to total... *₹23,300*!"),
- ("fund",    "अब देखो हिसाब...",                             "Ab dekho *hisaab*..."),
- ("bill",    "इन्वर्टर और बैटरी... नौ हज़ार पाँच सौ!",            "Inverter aur battery... *₹9,500*!"),
- ("bill",    "तीसरा पीसी ठीक कराया... चार हज़ार! अब पीसी चलते हैं... तीन!",
-             "Teesra PC theek karaya... *₹4,000*! Ab PC chalte hain... *teen*!"),
- ("bill",    "आरजीबी लाइट्स... अठारह सौ!",                    "RGB lights... *₹1,800*!"),
- ("bill",    "कॉफ़ी मशीन... साढ़े तीन हज़ार... और नाम रखा... चाय!",
-             "Coffee machine... *₹3,500*... aur naam rakha... *Chai*!"),
- ("bill",    "टूर्नामेंट एंट्री... दो हज़ार!",                     "Tournament entry... *₹2,000*!"),
- ("bill",    "और बचे? सिर्फ़ ढाई हज़ार!",                       "Aur bache? Sirf *₹2,500*!"),
- ("inverter","पर इन्वर्टर आया... जुगाड़ इलेक्ट्रॉनिक्स से!",          "Par inverter aaya... *Jugaad Electronics* se!"),
- ("pcs",     "लाइट गई तो चलाएगा... सिर्फ़ दो पीसी और एक पंखा!",   "Light gayi to chalayega... sirf *2 PC* aur ek *pankha*!"),
- ("pcs",     "और हर दो मिनट... बीप! बीप!",                    "Aur har 2 minute... *beep! beep!*"),
- ("investor","फिर आए इन्वेस्टर... सौ करोड़ का ऑफ़र...",           "Phir aaye investor... *₹100 crore* ka offer..."),
- ("investor","और बोले... एक चाय उधार मिलेगी?",                "Aur bole... ek *chai udhaar* milegi?"),
- ("prozone", "तभी... प्रो ज़ोन वाले आ गए। थ्री वर्सेस थ्री!",       "Tabhi... *Pro Zone* wale aa gaye. *3 vs 3*!"),
- ("team",    "हमारी टीम?",                                   "Hamari *team*?"),
- ("team",    "लकी! इस बार सामने दादी नहीं है!",                 "*Lucky*! Is baar saamne *dadi* nahi hai!"),
- ("team",    "चिंटू! चप्पल साथ लेकर बैठा है!",                 "*Chintu*! *Chappal* saath lekar baitha hai!"),
- ("team",    "और तीसरी... पिंकी दीदी! सिर्फ़ आज के मैच के लिए... स्नैक्स छोड़ के आई हैं! मैगी बीस मिनट में लाती हैं... पर हेडशॉट... बीस सेकंड में!",
-             "Aur teesri... *Pinky didi*! Sirf *aaj ke match* ke liye... snacks chhod ke aayi hain! Maggi 20 minute mein laati hain... par headshot... *20 second* mein!"),
- ("match",   "स्कोर... दो-दो! लास्ट राउंड!",                    "Score... *2-2*! *Last round*!"),
- ("match",   "और तभी... लाइट गुल!",                          "Aur tabhi... *light gul*!"),
- ("blackout","इन्वर्टर... बीप... बीप...",                       "Inverter... *beep*... *beep*..."),
- ("blackout","दो पीसी चालू... पर पिंकी दीदी की स्क्रीन... काली!",   "2 PC chaalu... par *Pinky didi* ki screen... *kaali*!"),
- ("decide",  "अब फ़ैसला तुम्हारा, बॉस!",                       "Ab *faisla* tumhara, boss!"),
- ("decide",  "ए... पंखा बंद, पिंकी दीदी का पीसी इन्वर्टर पर... पर इन्वर्टर फट भी सकता है!",
-             "*A*... pankha band, Pinky didi ka PC inverter par... par inverter *phat* bhi sakta hai!"),
- ("decide",  "बी... लकी अकेला कैरी करेगा... टू वर्सेस थ्री!",       "*B*... Lucky akela carry karega... *2 vs 3*!"),
- ("decide",  "सी... बचे ढाई हज़ार से कुछ और? कमेंट में लिखो!",     "*C*... bache ₹2,500 se kuch aur? *Comment* mein likho!"),
- ("decide",  "जिस ऑप्शन पर सबसे ज़्यादा कमेंट्स... वही जीतेगा!",   "Jis option par sabse zyada *comments*... wahi *jeetega*!"),
- ("decide",  "और अपने गेमर दोस्त को टैग करो! जिस टैग पर सबसे ज़्यादा लाइक्स... वो दोस्त अगली वीडियो में फ़ीचर्ड!",
-             "Aur apne gamer *dost ko tag* karo! Jis tag par sabse zyada *likes*... wo dost agli video mein *featured*!"),
- ("decide",  "बॉस... तुम हो!",                               "Boss... *tum* ho!"),
+ ('result', '[excited] Boss! Result आ गया!', 'Boss! Result aa gaya!'),
+ ('result', 'Majority ने कहा... [dramatically] B! Inverter!', '*Majority* ne kaha... *B*! *Inverter*!'),
+ ('result', '[laughs] PC वाले... इस बार पीछे रह गए!', 'PC wale... is baar *peeche* reh gaye!'),
+ ('vip', '[cheerfully] और cafe की family? अब एक सौ इकसठ followers!', 'Aur cafe ki *family*? Ab *161 followers*!'),
+ ('vip', 'सबकी VIP seat पक्की! [excited] अपना नाम ढूँढो!', 'Sabki *VIP seat* pakki! Apna *naam* dhundo!'),
+ ('fund', '[proudly] तुमने दिए... दो सौ तेरह likes!', 'Tumne diye... *213 likes*!'),
+ ('fund', 'हर like सौ रुपये... मतलब इक्कीस हज़ार तीन सौ!', 'Har like ₹100... matlab *₹21,300*!'),
+ ('fund', 'दो हज़ार पहले से थे... तो total... [excited] तेईस हज़ार तीन सौ!', '₹2,000 pehle se the... to total... *₹23,300*!'),
+ ('fund', 'अब देखो हिसाब...', 'Ab dekho *hisaab*...'),
+ ('bill', 'Inverter और battery... नौ हज़ार पाँच सौ!', 'Inverter aur battery... *₹9,500*!'),
+ ('bill', 'तीसरा PC ठीक कराया... चार हज़ार!', 'Teesra PC theek karaya... *₹4,000*!'),
+ ('bill', 'RGB lights... अठारह सौ!', 'RGB lights... *₹1,800*!'),
+ ('bill', 'Coffee machine... साढ़े तीन हज़ार... [laughs] नाम रखा चाय!', 'Coffee machine... *₹3,500*... naam rakha *Chai*!'),
+ ('bill', 'Tournament entry... दो हज़ार!', 'Tournament entry... *₹2,000*!'),
+ ('bill', 'और बचे? [nervously] सिर्फ़ ढाई हज़ार!', 'Aur bache? Sirf *₹2,500*!'),
+ ('inverter', 'पर inverter आया... [sarcastic] जुगाड़ Electronics से!', 'Par inverter aaya... *Jugaad Electronics* se!'),
+ ('pcs', 'Light गई तो चलाएगा... सिर्फ़ दो PC और एक पंखा!', 'Light gayi to chalayega... sirf *2 PC* aur ek *pankha*!'),
+ ('pcs', '[sighs] और हर दो minute... beep! beep!', 'Aur har 2 minute... *beep! beep!*'),
+ ('investor', 'फिर आए investor... सौ करोड़ का offer...', 'Phir aaye investor... *₹100 crore* ka offer...'),
+ ('investor', '[chuckles] और बोले... एक चाय उधार मिलेगी?', 'Aur bole... ek *chai udhaar* milegi?'),
+ ('prozone', '[serious] तभी... Pro Zone वाले आ गए! Three versus three!', 'Tabhi... *Pro Zone* wale aa gaye! *3 vs 3*!'),
+ ('team', 'हमारी team? Lucky... और Chintu.', 'Hamari team? *Lucky*... aur *Chintu*.'),
+ ('team', '[nervously] पर तीसरा player? है ही नहीं!', 'Par *teesra player*? Hai hi nahi!'),
+ ('team', 'तो आज के लिए... [excited] Pinky दीदी खेलेंगी!', 'To aaj ke liye... *Pinky didi* khelengi!'),
+ ('team', '[laughs] Snacks वाली दीदी... आज gamer!', 'Snacks wali didi... aaj *gamer*!'),
+ ('match', '[excited] Score... दो-दो! Last round!', 'Score... *2-2*! *Last round*!'),
+ ('match', 'और तभी... [dramatically] light गुल!', 'Aur tabhi... *light gul*!'),
+ ('blackout', 'Inverter... beep... beep...', 'Inverter... *beep*... *beep*...'),
+ ('blackout', 'दो PC चालू... पर Pinky दीदी की screen... [gasps] काली!', '2 PC chaalu... par *Pinky didi* ki screen... *kaali*!'),
+ ('decide', '[serious] अब फ़ैसला तुम्हारा, boss!', 'Ab *faisla* tumhara, boss!'),
+ ('decide', 'A... पंखा बंद, Pinky दीदी का PC inverter पर!', '*A*... pankha band, Pinky didi ka PC inverter par!'),
+ ('decide', 'पर inverter फट भी सकता है!', 'Par inverter *phat* bhi sakta hai!'),
+ ('decide', 'B... Lucky अकेला... two versus three!', '*B*... Lucky akela... *2 vs 3*!'),
+ ('decide', 'C... बचे ढाई हज़ार से कुछ और? Comment में लिखो!', '*C*... bache ₹2,500 se kuch aur? *Comment* mein likho!'),
+ ('decide', 'जिस option पर सबसे ज़्यादा comments... वही जीतेगा!', 'Jis option par sabse zyada *comments*... wahi *jeetega*!'),
+ ('decide', '[excited] और सुनो! Team का तीसरा player... तुम चुनोगे!', 'Aur suno! Team ka *teesra player*... *tum* chunoge!'),
+ ('decide', 'अपने gamer दोस्त को tag करो!', 'Apne gamer *dost ko tag* karo!'),
+ ('decide', 'जिस tag पर सबसे ज़्यादा likes... वो बनेगा Level Up का नया player!', 'Jis tag par sabse zyada *likes*... wo banega Level Up ka *naya player*!'),
+ ('decide', 'Boss... [proudly] तुम हो!', 'Boss... *tum* ho!'),
 ]
 
 SHOTS = [
@@ -104,18 +102,38 @@ def _trim(x, sr, thr=.015, pad=.06):
     if not len(on): return x
     return x[max(0, on[0]*fr-int(pad*sr)): min(len(x), (on[-1]+1)*fr+int(pad*sr))]
 
-def _gaps(x, sr, need, thr=.012):
-    """the `need` longest pauses inside the clip -> list of (start, end) seconds, in time order"""
+def _runs(x, sr, thr=.012, minf=8):
     fr = int(.01*sr); n = len(x)//fr
     q = _np.sqrt((x[:n*fr].reshape(n, fr)**2).mean(1)) < thr
-    runs = []; s = None
+    runs = []; st = None
     for i, v in enumerate(q):
-        if v and s is None: s = i
-        if not v and s is not None:
-            if i-s >= 12: runs.append((s*.01, i*.01))
-            s = None
-    runs.sort(key=lambda r: r[0]-r[1])
-    return sorted(runs[:need])
+        if v and st is None: st = i
+        if not v and st is not None:
+            if i-st >= minf: runs.append((st*.01, i*.01))
+            st = None
+    return runs
+
+def _w(p):
+    import re as _re
+    p = _re.sub(r"\[[^\]]+\]", "", p)
+    p = _re.sub(r"[*.!?,]", "", p)
+    return sum(len(w)+2 for w in p.split()) + 1
+
+def _gaps(x, sr, parts, wparts=None):
+    """for each '...' boundary pick the pause nearest its expected time (by spoken length), in order"""
+    d = len(x)/sr; runs = _runs(x, sr)
+    w = [_w(p) for p in (wparts or parts)]; tot = sum(w); acc = 0; out = []; last = 0.0
+    for k in range(len(parts)-1):
+        acc += w[k]; e = d*acc/tot
+        cand = [r for r in runs if r[0] > last + .15 and r[1] < d - .15]
+        if cand:
+            r = min(cand, key=lambda r: abs((r[0]+r[1])/2 - e) - .6*(r[1]-r[0]))
+            if abs((r[0]+r[1])/2 - e) < max(.6, .35*d): out.append(r); last = r[1]; continue
+        out.append((e, e)); last = e
+    return out
+
+# hand-checked caption split points (seconds into the trimmed line clip)
+SPLITS = {2: [(1.01, 1.29)], 8: [(1.23, 1.51), (2.22, 2.47)], 13: [(0.70, 0.88), (2.14, 2.39)]}
 
 if USER_VOICE:
     _SAYS = [l[1] for l in LINES]
@@ -126,10 +144,8 @@ if USER_VOICE:
         x = _trim(x, sr); d = len(x)/sr
         parts = [p.strip() for p in cap.split("...") if p.strip()]
         if len(parts) < 2: return x, [(cap.replace("...", ""), 0.0, d)]
-        g = _gaps(x, sr, len(parts)-1)
-        if len(g) != len(parts)-1:
-            w = [len(p) for p in parts]; acc = 0; g = []
-            for k in w[:-1]: acc += k; g.append((d*acc/sum(w), d*acc/sum(w)))
+        sp = [q.strip() for q in say.split("...") if q.strip()]
+        g = SPLITS.get(i+1) or _gaps(x, sr, parts, sp if len(sp) == len(parts) else None)
         segs = []; t0 = 0.0
         for k, p in enumerate(parts):
             t1 = g[k][0] if k < len(g) else d
@@ -569,19 +585,23 @@ def shot_world(ctx, shot, lt, T, m):
         art.person(ctx, 120, 1230, 1.0, MANAGER, "shrug" if lt > lt_(shot, 0, .5) else "idle", t=lt, mouth=m)
         ctx.restore()
     elif sid == "team":
-        # lineup, then the camera visits each player
-        keys = [(0, 360, 1.0), (lt_(shot, 1, 0), 215, 1.45), (lt_(shot, 2, 0), 360, 1.45), (lt_(shot, 3, 0), 505, 1.45)]
-        fx, zz = 360, 1.0
+        # L0: Lucky -> Chintu, L1: empty third chair, L2: Pinky didi walks in, L3: she's a gamer today
+        keys = [(0, 215, 1.45), (lt_(shot, 0, .45), 360, 1.45), (lt_(shot, 1, 0), 520, 1.45), (lt_(shot, 3, .3), 360, 1.0)]
+        fx, zz = 215, 1.45
         for i, (t0, x_, z_) in enumerate(keys):
             if lt >= t0:
-                p = ease((lt-t0)/.45)
-                fx = fx + (x_-fx)*p; zz = zz + (z_-zz)*p
+                p_ = ease((lt-t0)/.5)
+                fx = fx + (x_-fx)*p_; zz = zz + (z_-zz)*p_
         ctx.save(); cam(ctx, zz, fx, 900); paint_bg(ctx, "vip")
-        draw_lucky(ctx, 175, 1160, .58, "cheer" if lt > lt_(shot, 1, .3) else "idle", lt, mouth=0)
-        art.person(ctx, 360, 1160, .58, CHINTU, "hold" if lt > lt_(shot, 2, .2) else "idle", t=lt)
-        if lt > lt_(shot, 2, .2): chappal(ctx, 428, 1160-345, .55, rot=.5 + math.sin(lt*6)*.15)
-        draw_pinky(ctx, 545, 1160, .58, "cheer" if lt > lt_(shot, 3, .7) else ("point" if lt > lt_(shot, 3, .1) else "idle"), lt)
-        if lt > lt_(shot, 3, .1): headphones(ctx, 545, 1160, .58)
+        draw_lucky(ctx, 175, 1160, .58, "cheer" if lt > lt_(shot, 3, .5) else "idle", lt, mouth=0)
+        art.person(ctx, 360, 1160, .58, CHINTU, "cheer" if lt > lt_(shot, 3, .5) else "idle", t=lt)
+        chappal(ctx, 428, 1160-345, .55, rot=.5 + math.sin(lt*6)*.15)
+        t_in = lt_(shot, 2, .25)
+        if lt > t_in:
+            k = eout((lt - t_in)/.8)
+            px = 820 - (820-545)*k
+            draw_pinky(ctx, px, 1160, .58, "cheer" if lt > lt_(shot, 3, .2) else "point", lt)
+            if lt > lt_(shot, 3, .1): headphones(ctx, px, 1160, .58)
         ctx.restore()
     elif sid == "match":
         dark = lt > lt_(shot, 1, .6)
@@ -620,13 +640,13 @@ def cues(shot):
     if s == "pcs":      c = dict(tag=(.2, "pop"), two=(lt_(shot, 0, .55), "pop"), fan=(lt_(shot, 0, .85), "pop"), beep=(lt_(shot, 1, .45), "beep"))
     if s == "investor": c = dict(tag=(.25, "pop"), cr=(lt_(shot, 0, .55), "hit"), ud=(lt_(shot, 1, .55), "hit"))
     if s == "prozone":  c = dict(card=(lt_(shot, 0, .35), "hit"), vs=(lt_(shot, 0, .8), "pop"))
-    if s == "team":     c = dict(q=(.05, "pop"), p1=(lt_(shot, 1, .05), "hit"), p2=(lt_(shot, 2, .05), "hit"), p3=(lt_(shot, 3, .3), "hit"),
-                                 guest=(lt_(shot, 3, .2), "pop"), wake=(lt_(shot, 3, .55), "pop"), hs=(lt_(shot, 3, .85), "hit"))
+    if s == "team":     c = dict(q=(.05, "pop"), p1=(lt_(shot, 0, .2), "hit"), p2=(lt_(shot, 0, .6), "hit"), q3=(lt_(shot, 1, .2), "pop"),
+                                 none=(lt_(shot, 1, .6), "hit"), guest=(lt_(shot, 2, .55), "ding"), gamer=(lt_(shot, 3, .5), "hit"))
     if s == "match":    c = dict(score=(.1, "pop"), last=(lt_(shot, 0, .6), "riser"), cut=(lt_(shot, 1, .6), "powerdown"))
     if s == "blackout": c = dict(beep=(lt_(shot, 0, .2), "beep"), two=(lt_(shot, 1, .1), "pop"), black=(lt_(shot, 1, .8), "boom"))
-    if s == "decide":   c = dict(title=(lt_(shot, 0, .05), "hit"), a=(lt_(shot, 1), "pop"), risk=(lt_(shot, 1, .7), "pop"), b=(lt_(shot, 2), "pop"),
-                                 c=(lt_(shot, 3), "pop"), cm=(lt_(shot, 4), "pop"), tag=(lt_(shot, 5, .05), "whoosh"), feat=(lt_(shot, 5, .6), "ding"),
-                                 boss=(lt_(shot, 6, .5), "crowd"))
+    if s == "decide":   c = dict(title=(lt_(shot, 0, .05), "hit"), a=(lt_(shot, 1), "pop"), risk=(lt_(shot, 2, .1), "pop"), b=(lt_(shot, 3), "pop"),
+                                 c=(lt_(shot, 4), "pop"), cm=(lt_(shot, 5, .1), "pop"), p3=(lt_(shot, 6, .1), "whoosh"), tag=(lt_(shot, 7, .05), "pop"),
+                                 feat=(lt_(shot, 8, .6), "ding"), boss=(lt_(shot, 9, .5), "crowd"))
     for k, (t_, sfx) in list(c.items()):
         if sfx not in (None, "pop", "hit", "ding", "whoosh", "crowd", "riser"):
             c[k] = (t_, {"beep": "pop", "tick": "pop", "boom": "hit", "powerdown": "hit"}.get(sfx, "pop"))
@@ -743,19 +763,18 @@ def shot_ui(ctx, shot, lt, T):
         art.sticker(ctx, "3 vs 3!", 520, 640, 80, "#ffd21f", sc=P("vs"), rot=.08)
     elif s == "team":
         art.title(ctx, "HAMARI TEAM", W/2, 120, 80, sc=P("q", .35))
-        if c["p1"][0] < lt < lt_(shot, 2, 0):
+        if c["p1"][0] < lt < c["p2"][0]:
             art.tag(ctx, "PLAYER 1 · LUCKY", W/2, 230, "#c7262f", size=30, sc=P("p1"))
-            art.sticker(ctx, "NO DADI TODAY!", W/2, 330, 56, "#ffd21f", sc=pop_scale(lt, lt_(shot, 1, .5)), rot=-.06)
-        if c["p2"][0] < lt < lt_(shot, 3, 0):
+        if c["p2"][0] < lt < c["q3"][0]:
             art.tag(ctx, "PLAYER 2 · CHINTU", W/2, 230, "#2f6db0", size=30, sc=P("p2"))
-            art.sticker(ctx, "+ CHAPPAL", W/2, 330, 56, "#7fe0b0", sc=pop_scale(lt, lt_(shot, 2, .45)), rot=.06)
-        if lt > c["p3"][0]:
-            art.tag(ctx, "PLAYER 3 · PINKY DIDI", W/2, 230, "#e85a9a", size=30, sc=P("p3"))
-            if c["guest"][0] < lt < c["wake"][0]:
-                art.sticker(ctx, "GUEST PLAYER: SIRF AAJ!", W/2, 330, 46, "#7fe0b0", sc=P("guest"), rot=-.05)
-                art.tag(ctx, "SNACKS DEPT. TEMPORARILY CLOSED", W/2, 410, "#1e2a46", size=20, sc=pop_scale(lt, c["guest"][0]+.5))
-            if lt > c["wake"][0]: art.sticker(ctx, "MAGGI: 20 MIN", W/2, 320, 46, "#ff8a1e", sc=P("wake"), rot=-.06)
-            if lt > c["hs"][0]: art.sticker(ctx, "HEADSHOT: 20 SEC!", W/2, 400, 56, "#ffd21f", sc=P("hs"), rot=.05)
+        if c["q3"][0] < lt < c["guest"][0]:
+            art.tag(ctx, "PLAYER 3 · ???", W/2, 230, "#1e2a46", size=30, sc=P("q3"))
+            if lt > c["none"][0]: art.sticker(ctx, "HAI HI NAHI!", W/2, 340, 70, "#ff5a4a", sc=P("none"), rot=-.06)
+        if lt > c["guest"][0]:
+            art.tag(ctx, "PLAYER 3 · PINKY DIDI", W/2, 230, "#e85a9a", size=30, sc=P("guest"))
+            art.sticker(ctx, "SIRF AAJ KE LIYE!", W/2, 330, 50, "#7fe0b0", sc=pop_scale(lt, c["guest"][0]+.2), rot=-.05)
+        if lt > c["gamer"][0]:
+            art.sticker(ctx, "SNACKS → GAMER!", W/2, 420, 54, "#ffd21f", sc=P("gamer"), rot=.05)
     elif s == "match":
         sc = P("score")
         if sc > .01:
@@ -783,20 +802,23 @@ def shot_ui(ctx, shot, lt, T):
             act = (k == cur and lt < c["cm"][0]) or (allon and int(lt*5) % 3 == k)
             art.option(ctx, W/2, 320+k*104, 640, L_, t_, col, act, sc=P(key))
         if c["risk"][0] < lt < c["b"][0]: art.sticker(ctx, "RISK: INVERTER PHAT SAKTA HAI!", W/2, 650, 40, "#ff5a4a", sc=P("risk"), rot=-.04)
-        art.tag(ctx, "COMMENT  A / B / C", 260, 660, "#c7262f", size=26, sc=P("cm"))
-        art.tag(ctx, "MOST COMMENTED OPTION WINS", 300, 730, "#ffd21f", "#1b1208", 22, sc=pop_scale(lt, c["cm"][0]+.25), border="#1b1208")
-        if c["tag"][0] < lt < lt_(shot, 6, 0) + .3:
-            sc = P("tag", .35)
+        if c["cm"][0] < lt < c["p3"][0]:
+            art.tag(ctx, "COMMENT  A / B / C", 260, 660, "#c7262f", size=26, sc=P("cm"))
+            art.tag(ctx, "MOST COMMENTED OPTION WINS", 300, 730, "#ffd21f", "#1b1208", 22, sc=pop_scale(lt, c["cm"][0]+.25), border="#1b1208")
+        if c["p3"][0] < lt < lt_(shot, 9, 0) + .3:
+            sc = P("p3", .35)
             if sc > .01:
-                ctx.save(); ctx.translate(W/2, 860); ctx.scale(sc, sc)
-                src(ctx, "#000", .35); rrect(ctx, -296, -96, 600, 190, 18); ctx.fill()
-                rrect(ctx, -300, -100, 600, 190, 18); fill_stroke(ctx, "#120c22", "#ffd21f", 5)
-                art.text(ctx, (("TAG YOUR GAMER DOST!", "#ffd21f"),), "lucky", 40, 0, -54)
-                rrect(ctx, -260, -18, 520, 54, 27); fill_stroke(ctx, "#2a2238", "#ffffff", 2)
-                art.text(ctx, (("@tumhara_dost", "#7fb6ff"), ("  ye dekh bhai!", "#ffffff")), "popx", 24, -10, 9)
-                art.heart(ctx, 232, 9, .8)
-                art.text(ctx, (("MOST LIKED TAG = FEATURED IN DAY 3", "#7fe0b0"),), "popx", 20, 0, 66)
+                ctx.save(); ctx.translate(W/2, 880); ctx.scale(sc, sc)
+                src(ctx, "#000", .35); rrect(ctx, -296, -116, 600, 236, 18); ctx.fill()
+                rrect(ctx, -300, -120, 600, 236, 18); fill_stroke(ctx, "#120c22", "#ffd21f", 5)
+                art.text(ctx, (("PLAYER 3 = TUMHARA DOST!", "#ffd21f"),), "lucky", 38, 0, -78)
+                if lt > c["tag"][0]:
+                    rrect(ctx, -260, -36, 520, 54, 27); fill_stroke(ctx, "#2a2238", "#ffffff", 2)
+                    art.text(ctx, (("@tumhara_dost", "#7fb6ff"), ("  team mein aa ja!", "#ffffff")), "popx", 22, -10, -9)
+                    art.heart(ctx, 232, -9, .8)
+                    art.text(ctx, (("TAG KARO · SABSE ZYADA LIKES", "#7fe0b0"),), "popx", 20, 0, 50)
+                    art.text(ctx, (("= LEVEL UP KA NAYA PLAYER", "#7fe0b0"),), "popx", 20, 0, 82)
                 ctx.restore()
-            art.sticker(ctx, "FEATURED NEXT!", 520, 740, 44, "#ff3fa4", sc=P("feat"), rot=.1)
+            if lt > c["feat"][0]: art.sticker(ctx, "NAYA PLAYER!", 540, 740, 46, "#ff3fa4", sc=P("feat"), rot=.1)
         art.sticker(ctx, "YOU'RE THE BOSS!", 330, 850, 60, "#ffd21f", sc=P("boss"), rot=-.1)
         art.confetti(ctx, lt-c["boss"][0], W/2, 600)
