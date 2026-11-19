@@ -46,8 +46,8 @@ PRO = [dict(skin=s, hair=h, shirt="#6a3fc4", stripes=["#6a3fc4", "#6a3fc4", "#ff
 # ---------------- script: must match the ElevenLabs take line for line ----------------
 LINES = [
  ("result",  "बॉस! रिज़ल्ट आ गया!",                         "Boss! *Result* aa gaya!"),
- ("result",  "तुमने चुना... बी! इन्वर्टर!",                     "Tumne chuna... *B*! *Inverter*!"),
- ("result",  "चौदह वोट बी को... आठ वोट ए को!",               "*14* vote B ko... 8 vote A ko!"),
+ ("result",  "मेजॉरिटी ने कहा... बी! इन्वर्टर!",                "*Majority* ne kaha... *B*! *Inverter*!"),
+ ("result",  "पीसी वाले... इस बार पीछे रह गए!",                 "PC wale... is baar *peeche* reh gaye!"),
  ("vip",     "और कैफ़े की फ़ैमिली? अब एक सौ इकसठ फ़ॉलोअर्स!",       "Aur cafe ki family? Ab *161 followers*!"),
  ("vip",     "सबकी वी आई पी सीट पक्की... अपना नाम ढूँढो!",          "Sabki *VIP seat* pakki... apna *naam* dhundo!"),
  ("fund",    "तुमने दिए... दो सौ तेरह लाइक्स!",                   "Tumne diye... *213 likes*!"),
@@ -71,8 +71,8 @@ LINES = [
  ("team",    "हमारी टीम?",                                   "Hamari *team*?"),
  ("team",    "लकी! इस बार सामने दादी नहीं है!",                 "*Lucky*! Is baar saamne *dadi* nahi hai!"),
  ("team",    "चिंटू! चप्पल साथ लेकर बैठा है!",                 "*Chintu*! *Chappal* saath lekar baitha hai!"),
- ("team",    "और तीसरी... पिंकी दीदी! मैगी बीस मिनट में लाती हैं... पर हेडशॉट... बीस सेकंड में!",
-             "Aur teesri... *Pinky didi*! Maggi 20 minute mein laati hain... par headshot... *20 second* mein!"),
+ ("team",    "और तीसरी... पिंकी दीदी! सिर्फ़ आज के मैच के लिए... स्नैक्स छोड़ के आई हैं! मैगी बीस मिनट में लाती हैं... पर हेडशॉट... बीस सेकंड में!",
+             "Aur teesri... *Pinky didi*! Sirf *aaj ke match* ke liye... snacks chhod ke aayi hain! Maggi 20 minute mein laati hain... par headshot... *20 second* mein!"),
  ("match",   "स्कोर... दो-दो! लास्ट राउंड!",                    "Score... *2-2*! *Last round*!"),
  ("match",   "और तभी... लाइट गुल!",                          "Aur tabhi... *light gul*!"),
  ("blackout","इन्वर्टर... बीप... बीप...",                       "Inverter... *beep*... *beep*..."),
@@ -83,6 +83,8 @@ LINES = [
  ("decide",  "बी... लकी अकेला कैरी करेगा... टू वर्सेस थ्री!",       "*B*... Lucky akela carry karega... *2 vs 3*!"),
  ("decide",  "सी... बचे ढाई हज़ार से कुछ और? कमेंट में लिखो!",     "*C*... bache ₹2,500 se kuch aur? *Comment* mein likho!"),
  ("decide",  "जिस ऑप्शन पर सबसे ज़्यादा कमेंट्स... वही जीतेगा!",   "Jis option par sabse zyada *comments*... wahi *jeetega*!"),
+ ("decide",  "और अपने गेमर दोस्त को टैग करो! जिस टैग पर सबसे ज़्यादा लाइक्स... वो दोस्त अगली वीडियो में फ़ीचर्ड!",
+             "Aur apne gamer *dost ko tag* karo! Jis tag par sabse zyada *likes*... wo dost agli video mein *featured*!"),
  ("decide",  "बॉस... तुम हो!",                               "Boss... *tum* ho!"),
 ]
 
@@ -607,7 +609,7 @@ def shot_world(ctx, shot, lt, T, m):
 def cues(shot):
     s = shot["id"]; c = {}
     if s == "result":   c = dict(title=(.1, "hit"), a=(lt_(shot, 1, 0), "pop"), b=(lt_(shot, 1, .2), "pop"), c=(lt_(shot, 1, .35), "pop"),
-                                 win=(lt_(shot, 1, .55), "hit"), cnt=(lt_(shot, 2, .1), "ding"))
+                                 win=(lt_(shot, 1, .55), "hit"), cnt=(lt_(shot, 1, .7), "ding"), maj=(lt_(shot, 1, .1), "pop"))
     if s == "vip":      c = dict(tag=(.1, "pop"), board=(lt_(shot, 0, .3), "pop"), list=(lt_(shot, 0, .55), "whoosh"),
                                  find=(lt_(shot, 1, .55), "ding"))
     if s == "fund":     c = dict(likes=(lt_(shot, 0, .2), "pop"), x100=(lt_(shot, 1, .1), "pop"), plus=(lt_(shot, 2, .1), "pop"),
@@ -619,11 +621,12 @@ def cues(shot):
     if s == "investor": c = dict(tag=(.25, "pop"), cr=(lt_(shot, 0, .55), "hit"), ud=(lt_(shot, 1, .55), "hit"))
     if s == "prozone":  c = dict(card=(lt_(shot, 0, .35), "hit"), vs=(lt_(shot, 0, .8), "pop"))
     if s == "team":     c = dict(q=(.05, "pop"), p1=(lt_(shot, 1, .05), "hit"), p2=(lt_(shot, 2, .05), "hit"), p3=(lt_(shot, 3, .3), "hit"),
-                                 wake=(lt_(shot, 3, .35), "pop"), hs=(lt_(shot, 3, .8), "hit"))
+                                 guest=(lt_(shot, 3, .2), "pop"), wake=(lt_(shot, 3, .55), "pop"), hs=(lt_(shot, 3, .85), "hit"))
     if s == "match":    c = dict(score=(.1, "pop"), last=(lt_(shot, 0, .6), "riser"), cut=(lt_(shot, 1, .6), "powerdown"))
     if s == "blackout": c = dict(beep=(lt_(shot, 0, .2), "beep"), two=(lt_(shot, 1, .1), "pop"), black=(lt_(shot, 1, .8), "boom"))
     if s == "decide":   c = dict(title=(lt_(shot, 0, .05), "hit"), a=(lt_(shot, 1), "pop"), risk=(lt_(shot, 1, .7), "pop"), b=(lt_(shot, 2), "pop"),
-                                 c=(lt_(shot, 3), "pop"), cm=(lt_(shot, 4), "pop"), boss=(lt_(shot, 5, .5), "crowd"))
+                                 c=(lt_(shot, 3), "pop"), cm=(lt_(shot, 4), "pop"), tag=(lt_(shot, 5, .05), "whoosh"), feat=(lt_(shot, 5, .6), "ding"),
+                                 boss=(lt_(shot, 6, .5), "crowd"))
     for k, (t_, sfx) in list(c.items()):
         if sfx not in (None, "pop", "hit", "ding", "whoosh", "crowd", "riser"):
             c[k] = (t_, {"beep": "pop", "tick": "pop", "boom": "hit", "powerdown": "hit"}.get(sfx, "pop"))
@@ -648,10 +651,10 @@ def shot_ui(ctx, shot, lt, T):
             ctx.save(); ctx.translate(W/2, y); ctx.scale(sc, sc)
             rrect(ctx, -228, 50, 456, 16, 6); fill_stroke(ctx, "#2a2238", None)
             rrect(ctx, -228, 50, 456*f, 16, 6); fill_stroke(ctx, col if not win else "#ffd21f", None)
-            art.text(ctx, (("%d votes" % int(VOTES[L_]*ease((lt-c["cnt"][0])/1.0)), "#ffffff"),), "popx", 18, 280, 58, stroke=3)
             ctx.restore()
         art.confetti(ctx, lt-c["win"][0], 560, 360, n=40)
         art.sticker(ctx, "WINNER!", 555, 418, 64, "#ffd21f", sc=P("win"), rot=.12)
+        art.sticker(ctx, "MAJORITY KA FAISLA!", W/2, 680, 58, "#ff8a1e", sc=P("maj"), rot=-.05)
     elif s == "vip":
         art.tag(ctx, "VIP SEATS", 170, 110, "#7a2fb0", size=30, sc=P("tag"))
         art.board(ctx, 500, 120, "FOLLOWERS", "{:,}".format(_count(lt, c["board"][0]+.1, 1.6, 36, FOLLOWERS)), 260, sc=P("board"), vsize=46)
@@ -748,6 +751,9 @@ def shot_ui(ctx, shot, lt, T):
             art.sticker(ctx, "+ CHAPPAL", W/2, 330, 56, "#7fe0b0", sc=pop_scale(lt, lt_(shot, 2, .45)), rot=.06)
         if lt > c["p3"][0]:
             art.tag(ctx, "PLAYER 3 · PINKY DIDI", W/2, 230, "#e85a9a", size=30, sc=P("p3"))
+            if c["guest"][0] < lt < c["wake"][0]:
+                art.sticker(ctx, "GUEST PLAYER: SIRF AAJ!", W/2, 330, 46, "#7fe0b0", sc=P("guest"), rot=-.05)
+                art.tag(ctx, "SNACKS DEPT. TEMPORARILY CLOSED", W/2, 410, "#1e2a46", size=20, sc=pop_scale(lt, c["guest"][0]+.5))
             if lt > c["wake"][0]: art.sticker(ctx, "MAGGI: 20 MIN", W/2, 320, 46, "#ff8a1e", sc=P("wake"), rot=-.06)
             if lt > c["hs"][0]: art.sticker(ctx, "HEADSHOT: 20 SEC!", W/2, 400, 56, "#ffd21f", sc=P("hs"), rot=.05)
     elif s == "match":
@@ -779,5 +785,18 @@ def shot_ui(ctx, shot, lt, T):
         if c["risk"][0] < lt < c["b"][0]: art.sticker(ctx, "RISK: INVERTER PHAT SAKTA HAI!", W/2, 650, 40, "#ff5a4a", sc=P("risk"), rot=-.04)
         art.tag(ctx, "COMMENT  A / B / C", 260, 660, "#c7262f", size=26, sc=P("cm"))
         art.tag(ctx, "MOST COMMENTED OPTION WINS", 300, 730, "#ffd21f", "#1b1208", 22, sc=pop_scale(lt, c["cm"][0]+.25), border="#1b1208")
+        if c["tag"][0] < lt < lt_(shot, 6, 0) + .3:
+            sc = P("tag", .35)
+            if sc > .01:
+                ctx.save(); ctx.translate(W/2, 860); ctx.scale(sc, sc)
+                src(ctx, "#000", .35); rrect(ctx, -296, -96, 600, 190, 18); ctx.fill()
+                rrect(ctx, -300, -100, 600, 190, 18); fill_stroke(ctx, "#120c22", "#ffd21f", 5)
+                art.text(ctx, (("TAG YOUR GAMER DOST!", "#ffd21f"),), "lucky", 40, 0, -54)
+                rrect(ctx, -260, -18, 520, 54, 27); fill_stroke(ctx, "#2a2238", "#ffffff", 2)
+                art.text(ctx, (("@tumhara_dost", "#7fb6ff"), ("  ye dekh bhai!", "#ffffff")), "popx", 24, -10, 9)
+                art.heart(ctx, 232, 9, .8)
+                art.text(ctx, (("MOST LIKED TAG = FEATURED IN DAY 3", "#7fe0b0"),), "popx", 20, 0, 66)
+                ctx.restore()
+            art.sticker(ctx, "FEATURED NEXT!", 520, 740, 44, "#ff3fa4", sc=P("feat"), rot=.1)
         art.sticker(ctx, "YOU'RE THE BOSS!", 330, 850, 60, "#ffd21f", sc=P("boss"), rot=-.1)
         art.confetti(ctx, lt-c["boss"][0], W/2, 600)
