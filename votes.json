@@ -3,5 +3,13 @@
     "A": 0,
     "B": 0,
     "winner": "A"
+  },
+  "flood_part2": {
+    "A": 0,
+    "B": 0,
+    "winner": "A",
+    "part2_media_id": "18417825007088526",
+    "part3_media_id": "18134264254743521",
+    "note": "no vote comments found in Windsor data; default A"
   }
 }
