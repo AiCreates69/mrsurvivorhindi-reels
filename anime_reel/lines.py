@@ -1,0 +1,21 @@
+# Narration for "LAAL JHOOTH — Part 1" (first-person, deadpan). say = Hindi for TTS, cap = Hinglish subtitle (*word* = highlight)
+LINES = [
+    ("मुझे झूठ दिखता है।",                        "Mujhe *JHOOTH* dikhta hai."),
+    ("लाल रंग में।",                              "*LAAL* rang mein."),
+    ("पिछले हफ़्ते, छत पर मुझ पर बिजली गिरी।",       "Pichhle hafte, chhat par mujh par *BIJLI* giri."),
+    ("मैं बच गया... पर कुछ साथ ले आया।",            "Main bach gaya... par kuch *SAATH* le aaya."),
+    ("मम्मी बोलीं, बस एक रोटी और।",                "Mummy boli — 'bas *EK* roti aur.'"),
+    ("लाल।",                                     "*LAAL.*"),
+    ("चार और आईं।",                               "*CHAAR* aur aayi."),
+    ("बंटी, भाई पाँच मिनट में पहुँचा।",              "Bunty — 'bhai *5 MINUTE* mein pahuncha.'"),
+    ("लाल। वो अभी सो के उठा था।",                  "*LAAL.* Woh abhi so ke utha tha."),
+    ("सर बोले, पेपर बहुत आसान आएगा।",              "Sir bole — 'paper bahut *ASAAN* aayega.'"),
+    ("आज तक का सबसे लाल झूठ।",                    "Aaj tak ka sabse *LAAL* jhooth."),
+    ("फिर मैंने हिम्मत करके मीरा से पूछा।",          "Phir maine himmat karke *MEERA* se poocha."),
+    ("उसने कहा, बिल्कुल नहीं।",                     "Usne kaha — 'bilkul *NAHI.*'"),
+    ("लाल। एकदम लाल।",                            "*LAAL.* Ekdum laal."),
+    ("पर आज रात, बस स्टॉप पर एक आदमी मिला।",        "Par aaj raat, bus stop par ek *AADMI* mila."),
+    ("उसने कहा, डरो मत... मैं इंसान हूँ।",           "Usne kaha — 'daro mat... main *INSAAN* hoon.'"),
+    ("फिर उसने पूछा... तुम भी देख सकते हो ना?",       "Phir usne poocha — 'tum bhi *DEKH* sakte ho na?'"),
+    ("और ये... सच था।",                           "Aur ye... *SACH* tha."),
+]
