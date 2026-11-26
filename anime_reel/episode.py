@@ -25,6 +25,9 @@ SHOTS = [
     ("endcard",  [], 0.0, 2.8),
 ]
 
+if os.environ.get("SHORT"):
+    SHOTS = [s for s in SHOTS if s[0] in ("eyes", "kitchen", "class", "endcard")]
+
 _vo = {}
 
 
@@ -936,17 +939,18 @@ def build_audio(shots, total, out_wav):
     en = lambda nm: S[nm].i["end"]
     mus = np.zeros(n, np.float32)
     # hook: dark drone + riser
-    d0 = en("terrace")
+    d0 = en("terrace") if "terrace" in S else en("eyes")
     dr = drone(d0 + 0.5, 46.25)
     A.place(mus, dr * np.minimum(1, np.arange(len(dr)) / (0.3 * sr)), 0.0, 0.8)
     # comedy lofi from kitchen to end of corridor
-    c0, c1 = st("kitchen"), en("corridor")
+    c0 = st("kitchen")
+    c1 = en("corridor") if "corridor" in S else en([k for k in S if k != "endcard"][-1])
     lo = music_lofi(c1 - c0 + 0.6)
     fade = np.ones(len(lo), np.float32); fo = int(0.5 * sr); fade[-fo:] = np.linspace(1, 0, fo)
     fi_ = int(0.15 * sr); fade[:fi_] = np.linspace(0, 1, fi_)
     A.place(mus, lo * fade, c0, 0.9)
     # dread
-    b0 = st("busstop")
+    b0 = st("busstop") if "busstop" in S else st("endcard")
     dd = drone(total - b0 + 0.5, 36.7, 9)
     env = np.ones(len(dd), np.float32); env[: int(1.0 * sr)] = np.linspace(0, 1, int(1.0 * sr))
     A.place(mus, dd * env, b0, 1.0)
@@ -959,49 +963,58 @@ def build_audio(shots, total, out_wav):
     def G(at, g=0.7, seed=1, d=0.35):
         A.place(fx, glitch_sfx(d, seed), at, g)
 
-    e = S["eyes"]
-    G(0.1, 0.35, 1, 0.25); G(e.i["start"] + LT(e, 1, 0.0) - 0.1, 0.6, 2)
-    S_("riser", 0.0, 0.5)
-    S_("boom", e.i["start"] + LT(e, 1, 0.0) - 0.05, 0.6)
-    tr = S["terrace"]
-    A.place(fx, rain_bed(tr.dur), tr.i["start"], 0.55)
-    S_("thunder", tr.i["start"] + 1.0, 0.6)
-    S_("boom", tr.i["start"] + tr.strike - 0.02, 1.0); S_("thunder", tr.i["start"] + tr.strike, 1.0)
-    S_("hit", tr.i["start"] + LT(tr, 3, 0.0) - 0.02, 0.8)
-    G(tr.i["start"] + LT(tr, 3, 0.0) + 0.9, 0.5, 3)
-    k = S["kitchen"]
-    S_("whoosh", k.i["start"] - 0.15, 0.6)
-    S_("pop", k.i["start"] + k.L[4][0] + 1.0, 0.7)
-    G(k.i["start"] + LT(k, 5, 0.0) - 0.1, 0.8, 4); S_("sting", k.i["start"] + LT(k, 5, 0.0) - 0.1, 0.35)
-    for j in range(3):
-        S_("pop", k.i["start"] + LT(k, 6, 0.0) + j * 0.22 + 0.17, 0.9)
-    p = S["phone"]
-    S_("whoosh", p.i["start"] - 0.15, 0.5)
-    S_("ding", p.i["start"] + p.L[7][0] + 0.9, 0.7)
-    G(p.i["start"] + LT(p, 8, 0.0) - 0.05, 0.8, 5)
-    S_("whoosh", p.i["start"] + LT(p, 8, 0.32) - 0.1, 0.5)
-    c = S["class"]
-    S_("whoosh", c.i["start"] - 0.15, 0.5)
-    A.place(fx, A.sfx("crowd").astype(np.float32)[: int(c.dur * sr)], c.i["start"], 0.25)
-    S_("pop", c.i["start"] + c.L[9][0] + 1.1, 0.6)
-    G(c.i["start"] + LT(c, 10, 0.0) - 0.15, 1.0, 6, 0.5); S_("boom", c.i["start"] + LT(c, 10, 0.0) - 0.15, 0.8)
-    co = S["corridor"]
-    S_("whoosh", co.i["start"] - 0.15, 0.5)
-    S_("pop", co.i["start"] + co.L[11][0] + 1.2, 0.5)
-    S_("pop", co.i["start"] + LT(co, 12, 0.0) + 0.7, 0.6)
-    G(co.i["start"] + LT(co, 13, 0.0) - 0.12, 0.7, 7)
-    S_("ding", co.i["start"] + LT(co, 13, 0.0) + 0.35, 0.6)
-    b = S["busstop"]
-    A.place(fx, rain_bed(b.dur + S["stranger"].dur, 8), b.i["start"], 0.6)
-    S_("footsteps", b.i["start"] + 0.2, 0.4)
-    S_("heartbeat", b.i["start"] + b.red_t - 0.2, 1.0); S_("heartbeat", b.i["start"] + b.red_t + 0.8, 1.0)
-    S_("sting", b.i["start"] + b.red_t, 0.6)
-    s = S["stranger"]
-    S_("riser", s.i["start"], 0.5)
-    S_("heartbeat", s.i["start"] + 0.3, 0.8); S_("heartbeat", s.i["start"] + 1.3, 0.8)
-    S_("hit", s.i["start"] + s.cut, 1.0); S_("boom", s.i["start"] + s.cut, 0.8)
-    ec = S["endcard"]
-    G(ec.i["start"], 0.8, 8, 0.4); S_("boom", ec.i["start"], 0.9)
+    if "eyes" in S:
+        e = S["eyes"]
+        G(0.1, 0.35, 1, 0.25); G(e.i["start"] + LT(e, 1, 0.0) - 0.1, 0.6, 2)
+        S_("riser", 0.0, 0.5)
+        S_("boom", e.i["start"] + LT(e, 1, 0.0) - 0.05, 0.6)
+    if "terrace" in S:
+        tr = S["terrace"]
+        A.place(fx, rain_bed(tr.dur), tr.i["start"], 0.55)
+        S_("thunder", tr.i["start"] + 1.0, 0.6)
+        S_("boom", tr.i["start"] + tr.strike - 0.02, 1.0); S_("thunder", tr.i["start"] + tr.strike, 1.0)
+        S_("hit", tr.i["start"] + LT(tr, 3, 0.0) - 0.02, 0.8)
+        G(tr.i["start"] + LT(tr, 3, 0.0) + 0.9, 0.5, 3)
+    if "kitchen" in S:
+        k = S["kitchen"]
+        S_("whoosh", k.i["start"] - 0.15, 0.6)
+        S_("pop", k.i["start"] + k.L[4][0] + 1.0, 0.7)
+        G(k.i["start"] + LT(k, 5, 0.0) - 0.1, 0.8, 4); S_("sting", k.i["start"] + LT(k, 5, 0.0) - 0.1, 0.35)
+        for j in range(3):
+            S_("pop", k.i["start"] + LT(k, 6, 0.0) + j * 0.22 + 0.17, 0.9)
+    if "phone" in S:
+        p = S["phone"]
+        S_("whoosh", p.i["start"] - 0.15, 0.5)
+        S_("ding", p.i["start"] + p.L[7][0] + 0.9, 0.7)
+        G(p.i["start"] + LT(p, 8, 0.0) - 0.05, 0.8, 5)
+        S_("whoosh", p.i["start"] + LT(p, 8, 0.32) - 0.1, 0.5)
+    if "class" in S:
+        c = S["class"]
+        S_("whoosh", c.i["start"] - 0.15, 0.5)
+        A.place(fx, A.sfx("crowd").astype(np.float32)[: int(c.dur * sr)], c.i["start"], 0.25)
+        S_("pop", c.i["start"] + c.L[9][0] + 1.1, 0.6)
+        G(c.i["start"] + LT(c, 10, 0.0) - 0.15, 1.0, 6, 0.5); S_("boom", c.i["start"] + LT(c, 10, 0.0) - 0.15, 0.8)
+    if "corridor" in S:
+        co = S["corridor"]
+        S_("whoosh", co.i["start"] - 0.15, 0.5)
+        S_("pop", co.i["start"] + co.L[11][0] + 1.2, 0.5)
+        S_("pop", co.i["start"] + LT(co, 12, 0.0) + 0.7, 0.6)
+        G(co.i["start"] + LT(co, 13, 0.0) - 0.12, 0.7, 7)
+        S_("ding", co.i["start"] + LT(co, 13, 0.0) + 0.35, 0.6)
+    if "busstop" in S:
+        b = S["busstop"]
+        A.place(fx, rain_bed(b.dur + (S["stranger"].dur if "stranger" in S else 0), 8), b.i["start"], 0.6)
+        S_("footsteps", b.i["start"] + 0.2, 0.4)
+        S_("heartbeat", b.i["start"] + b.red_t - 0.2, 1.0); S_("heartbeat", b.i["start"] + b.red_t + 0.8, 1.0)
+        S_("sting", b.i["start"] + b.red_t, 0.6)
+    if "stranger" in S:
+        s = S["stranger"]
+        S_("riser", s.i["start"], 0.5)
+        S_("heartbeat", s.i["start"] + 0.3, 0.8); S_("heartbeat", s.i["start"] + 1.3, 0.8)
+        S_("hit", s.i["start"] + s.cut, 1.0); S_("boom", s.i["start"] + s.cut, 0.8)
+    if "endcard" in S:
+        ec = S["endcard"]
+        G(ec.i["start"], 0.8, 8, 0.4); S_("boom", ec.i["start"], 0.9)
     # music duck under voice
     env = A._lp(np.abs(voice), 6)
     env = env / (env.max() + 1e-6)
@@ -1053,10 +1066,10 @@ def main():
     a, b = 0, nfr
     if "--frames" in sys.argv:
         a, b = [int(x) for x in sys.argv[sys.argv.index("--frames") + 1].split(":")]
-    out = os.path.join(out_dir, "laal_jhooth_part1.mp4")
+    out = os.path.join(out_dir, "laal_jhooth_short.mp4" if os.environ.get("SHORT") else "laal_jhooth_part1.mp4")
     cmd = ["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
            "-i", "-", "-ss", f"{a / FPS}", "-i", wav, "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-preset", "medium",
-           "-crf", "19", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", out]
+           "-crf", "26" if os.environ.get("SHORT") else "19", "-maxrate", "6M", "-bufsize", "12M", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", out]
     ff = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     with mp.Pool(os.cpu_count(), initializer=_init) as pool:
         for k, buf in enumerate(pool.imap(_work, range(a, b), chunksize=4)):
