@@ -17,6 +17,8 @@ CAST = {
                      top="#14141c", top2="#22222e", outfit="hoodup"),
 }
 
+FACE_BOXES = []
+
 DEFAULT_ST = dict(turn=0.0, blink=0.0, mouth=0.0, smile=0.0, brow=0.0, look=(0.0, 0.0), blush=0.0,
                   glow=0.0, sway=0.0, breathe=0.0, light=1.0, sweat=0.0, shock=0.0, eyes_closed_happy=0.0,
                   rim=None, dark=0.0)
@@ -361,6 +363,9 @@ def draw_char(ctx, name, x, y, s, st=None, flip=False):
     ctx.save()
     ctx.translate(x, y + st["breathe"] * s * 0.01)
     ctx.scale(s * (-1 if flip else 1), s)
+    # record the head's on-screen box so text can keep clear of faces
+    pts = [ctx.user_to_device(px, py) for px in (-0.52, 0.52) for py in (-0.6, 0.58)]
+    FACE_BOXES.append((min(p[0] for p in pts), min(p[1] for p in pts), max(p[0] for p in pts), max(p[1] for p in pts)))
     draw_hair_back(ctx, c, st)
     draw_body(ctx, c, st)
     draw_face(ctx, c, st)

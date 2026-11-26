@@ -78,6 +78,40 @@ def comp_wipe(dst, spr, cx, cy, frac, alpha=1.0, dx=0):
     comp(dst, s, cx + dx, cy, alpha)
 
 
+# ------------------------------------------------------------------ text layout (keeps text off faces)
+import chars as CH
+SAFE_TOP, SAFE_BOT = 150, 1580
+LAYOUT = dict(boxes=[], occupied=[])
+
+
+def _hits(box, boxes, pad=24):
+    x0, y0, x1, y1 = box
+    for (a0, b0, a1, b1) in boxes:
+        if x0 < a1 + pad and x1 > a0 - pad and y0 < b1 + pad and y1 > b0 - pad:
+            return True
+    return False
+
+
+def place(cx, pref_y, w, h, lo=SAFE_TOP, hi=SAFE_BOT):
+    """nearest y to pref_y (inside [lo,hi]) where a w*h box centred on cx avoids faces + earlier text."""
+    blockers = LAYOUT["boxes"] + LAYOUT["occupied"]
+    cands = sorted(range(int(lo + h / 2), int(hi - h / 2) + 1, 10), key=lambda y: abs(y - pref_y))
+    # if the preferred zone is full, fall back to anywhere in the safe area
+    cands += sorted(range(int(SAFE_TOP + h / 2), int(max(hi, SAFE_BOT) - h / 2) + 1, 10), key=lambda y: abs(y - pref_y))
+    for y in cands:
+        if not _hits((cx - w / 2, y - h / 2, cx + w / 2, y + h / 2), blockers):
+            return y
+    # nothing free: at least keep off faces, ignore other text
+    for y in cands:
+        if not _hits((cx - w / 2, y - h / 2, cx + w / 2, y + h / 2), LAYOUT["boxes"]):
+            return y
+    return pref_y
+
+
+def occupy(cx, cy, w, h):
+    LAYOUT["occupied"].append((cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2))
+
+
 def speech(img, text, cx, cy, size, t, t_in, t_red=None, red_mode="glitch", fi=0, true=False, wipe_dur=0.45):
     """Floating spoken text. Turns red (lie) at t_red."""
     if t < t_in:
@@ -87,6 +121,10 @@ def speech(img, text, cx, cy, size, t, t_in, t_red=None, red_mode="glitch", fi=0
     float_y = math.sin(t * 2.1) * 6
     base = tspr(text, size, TRUE_TXT if true else WHITE_TXT)
     red = tspr(text, size, RED_TXT)
+    gp = int(size * 0.35)  # glow padding inside sprite isn't "ink"
+    tw, th = base.shape[1] - 2 * gp, base.shape[0] - 2 * gp
+    cy = place(cx, cy, tw, th + 20)
+    occupy(cx, cy, tw, th)
     if sc != 1.0:
         comp(img, base, cx, cy + float_y, min(1, k * 2), scale=sc)
         return 0.0
@@ -152,8 +190,12 @@ def caption_sprite(cap, size=58, maxw=900):
             reg[..., :3] = reg[..., :3] * (1 - a) + s[..., :3] * a
             reg[..., 3:4] = reg[..., 3:4] * (1 - a) + a
             x += w - 12 + space
+    _capw[key] = max(sum(s.shape[1] - 12 for s in ln) + space * (len(ln) - 1) for ln in lines)
     _capcache[key] = out
     return out
+
+
+_capw = {}
 
 
 _capcache = {}
@@ -163,9 +205,10 @@ def draw_caption(img, cap, t, t0, t1):
     if t < t0 - 0.05 or t > t1 + 0.3:
         return
     spr = caption_sprite(cap)
+    y = place(W / 2, CAP_Y, _capw[(cap, 58)], spr.shape[0] - 20, lo=900, hi=1720)
     k = (t - t0 + 0.05) / 0.18
     sc = 0.86 + 0.14 * back_out(k) if k < 1 else 1.0
-    comp(img, spr, W / 2, CAP_Y, min(1.0, k * 1.5), scale=sc)
+    comp(img, spr, W / 2, y, min(1.0, k * 1.5), scale=sc)
 
 
 # ------------------------------------------------------------------ camera
@@ -291,6 +334,14 @@ def speed_lines(ctx, cx, cy, fi, col=(1, 1, 1), a=0.25, n=60, r0=380):
 
 
 # ------------------------------------------------------------------ shots
+def _letterbox(img, top, bot):
+    """dark bands above/below an eye strip, with a thin red edge."""
+    img[:top] = img[:top] * 0.08 + np.array([0.05, 0.0, 0.01], np.float32)
+    img[bot:] = img[bot:] * 0.08 + np.array([0.05, 0.0, 0.01], np.float32)
+    img[top - 4:top] = (1.0, 0.18, 0.2)
+    img[bot:bot + 4] = (1.0, 0.18, 0.2)
+
+
 class Shot:
     set = None
     grade = (1, 1, 1)
@@ -314,6 +365,10 @@ class Shot:
     def shake_at(self, t):
         return (0.0, 0.0)
 
+    def band(self, t):
+        """(top, bottom) of a cinematic eye strip, or None."""
+        return None
+
     def captions(self, img, t):
         items = sorted(self.L.items(), key=lambda kv: kv[1][0])
         for n, (i, (a, b)) in enumerate(items):
@@ -331,6 +386,9 @@ class Eyes(Shot):
     set = "void"
     bloom = (0.6, 0.6)
 
+    def band(self, t):
+        return (660, 1240)
+
     def cam(self):
         return Cam([(0, 1.0, W / 2, 820), (self.dur, 1.16, W / 2, 840)])
 
@@ -345,8 +403,8 @@ class Eyes(Shot):
             ctx.rectangle(0, 650, W, 350); ctx.fill()
 
     def overlay(self, img, t, fi):
-        words = [("BAS 5 MINUTE", 220, 300, 64), ("MAIN THEEK HOON", 760, 260, 58), ("KAL PAKKA", 840, 1130, 70),
-                 ("SACH MEIN!", 250, 1150, 66), ("I'M FINE", 560, 1560, 74)]
+        words = [("BAS 5 MINUTE", 280, 230, 70), ("MAIN THEEK HOON", 770, 330, 64), ("KAL PAKKA", 300, 440, 72),
+                 ("SACH MEIN!", 790, 530, 70), ("I'M FINE", 520, 610, 70)]
         g = 0.0
         for k, (w, x, y, s) in enumerate(words):
             t_in = 0.1 + k * 0.28
@@ -674,8 +732,8 @@ class BusStop(Shot):
     def cam(self):
         self.setup()
         a15 = LT(self, 15, 0.0)
-        return Cam([(0, 1.0, W / 2, 1000), (a15, 1.05, 620, 960), (self.red_t, 1.25, 700, 860),
-                    (self.dur, 1.45, 740, 820)])
+        return Cam([(0, 1.0, W / 2, 960), (a15, 1.05, 600, 940), (self.red_t, 1.14, 630, 910),
+                    (self.dur, 1.2, 640, 900)])
 
     def draw(self, ctx, t, fi):
         a15 = LT(self, 15, 0.0)
@@ -685,7 +743,7 @@ class BusStop(Shot):
         st_k = dict(turn=0.32, look=(0.8, -0.2), blink=blink_at(t, 8), brow=-0.3 if t < self.red_t else 0.6,
                     shock=1.0 if t > self.red_t + 0.3 else 0, breathe=math.sin(t * 2.6), sweat=red,
                     rim=(1, 0.2, 0.2) if red > 0 else None)
-        draw_char(ctx, "kabir", 280, 1160, 360, st_k)
+        draw_char(ctx, "kabir", 250, 1080, 330, st_k)
         rain(ctx, fi, 220, alpha=0.28, seed=4)
         # light flicker
         if t > self.red_t and (fi % 9 in (0, 1)):
@@ -704,6 +762,9 @@ class Stranger(Shot):
     set = "void"
     bloom = (0.55, 0.8)
 
+    def band(self, t):
+        return (660, 1240) if t >= self.cut else None
+
     def setup(self):
         self.cut = LT(self, 17, 0.0) - 0.1
 
@@ -715,7 +776,7 @@ class Stranger(Shot):
     def draw(self, ctx, t, fi):
         if t < self.cut:
             st = dict(glow=1.0, breathe=math.sin(t * 1.4) * 2, mouth=talk(t, LT(self, 16, 0.45), LT(self, 16, 0.95), 3) * 0.5)
-            draw_char(ctx, "stranger", W / 2, 960, 1150, st)
+            draw_char(ctx, "stranger", W / 2, 900, 640, st)
         else:
             st = dict(shock=1.0, look=(0, 0), blink=0, brow=0.8, glow=0.0)
             draw_char(ctx, "kabir", W / 2, 790, 2000, st)
@@ -777,6 +838,37 @@ def make_shots():
     return shots, total
 
 
+_seg_cache = {}
+
+
+def seg_bounds(sh, t):
+    cuts = [k[0] for k in sh.camobj.keys if len(k) > 4 and k[4]]
+    a, b = 0.0, sh.dur
+    for c in cuts:
+        if c <= t:
+            a = c
+        elif c < b:
+            b = c
+            break
+    return a, b
+
+
+def face_boxes(sh, t):
+    a, b = seg_bounds(sh, t)
+    key = (sh.i["name"], round(a, 3))
+    if key not in _seg_cache:
+        boxes = []
+        for tt in (a + 0.02, (a + b) / 2, b - 0.03):
+            CH.FACE_BOXES.clear()
+            z, cx, cy = sh.camobj.at(tt)
+            surf, ctx = new_surface(8, 8)
+            apply_cam(ctx, z, cx, cy)
+            sh.draw(ctx, tt, int((sh.i["start"] + tt) * FPS))
+            boxes += list(CH.FACE_BOXES)
+        _seg_cache[key] = boxes
+    return _seg_cache[key]
+
+
 def render_frame(shots, fi):
     t_abs = fi / FPS
     sh = shots[-1]
@@ -795,6 +887,13 @@ def render_frame(shots, fi):
     sh.draw(ctx, t, fi)
     ctx.restore()
     img = surf_to_np(surf)
+    band = sh.band(t)
+    if band:
+        LAYOUT["boxes"] = [(0, band[0], W, band[1])]
+        _letterbox(img, *band)
+    else:
+        LAYOUT["boxes"] = face_boxes(sh, t)
+    LAYOUT["occupied"] = []
     fx = sh.overlay(img, t, fi) or {}
     sh.captions(img, t)
     # ---- post
